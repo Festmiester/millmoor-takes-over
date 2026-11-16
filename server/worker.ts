@@ -276,12 +276,9 @@ async function handle(r: Request, env: Env) {
   if (path === "/api/action" && r.method === "POST") {
     await throttle(sql, "action:" + pid, 90);
     const d = validateAction(await body(r));
-    if (d.kind === "buyBusiness" || d.kind === "claimBusiness") {
-      const rows = d.kind === "buyBusiness"
-        ? await sql`SELECT mto_business_purchase(${pid}::uuid,${d.key}::uuid,${String(d.input.id)}) AS result`
-        : await sql`SELECT mto_business_claim(${pid}::uuid,${d.key}::uuid,${String(d.input.id)}::uuid) AS result`;
-      const state = await sql`SELECT mto_public(mto_refresh(${pid}::uuid)) AS player`;
-      return json({...rows[0].result, player: state[0].player, serverTime: new Date().toISOString()});
+    if (["buyBusiness","collectBusiness","upgradeBusiness"].includes(d.kind)) {
+      const rows = await sql`SELECT mto_business_action(${pid}::uuid,${d.key}::uuid,${d.kind},${String(d.input.id)}) AS result`;
+      return json(rows[0].result);
     }
     if (d.kind === "claimDaily") {
       const rows =
@@ -293,8 +290,8 @@ async function handle(r: Request, env: Env) {
     return json(rows[0].result);
   }
   if (path === "/api/businesses" && r.method === "GET") {
-    const rows = await sql`SELECT t.id,t.title,t.description,t.purchase_price AS "purchasePrice",t.income_per_hour AS "incomePerHour",t.rank_required AS "rankRequired",b.id AS "ownedId",b.level,b.accrued_at AS "accruedAt",b.remainder_seconds AS "remainderSeconds" FROM mto_business_types t LEFT JOIN mto_businesses b ON b.business_type=t.id AND b.player_id=${pid}::uuid ORDER BY t.purchase_price`;
-    return json({businesses:rows,serverTime:new Date().toISOString()});
+    const rows = await sql`SELECT mto_business_status(${pid}::uuid) AS result`;
+    return json(rows[0].result);
   }
   if (path === "/api/daily" && r.method === "GET") {
     const rows = await sql`SELECT mto_daily(${pid}::uuid) AS daily`;
