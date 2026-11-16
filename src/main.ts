@@ -324,7 +324,7 @@ function content() {
         const owned=b.level>0;
         const cycles=owned&&b.collectedAt?Math.min(businesses!.capTicks,Math.max(0,Math.floor((Date.now()+offset-Date.parse(b.collectedAt))/1000/businesses!.tickSeconds))):0;
         const ready=cycles*b.rate;
-        return `<div class="simple-row"><div><strong>${esc(b.title)}</strong><p class="muted small">${esc(b.description)}</p><p class="small">${owned?`Level ${b.level} · ${money(b.rate)} every 10 min · Ready: ${money(ready)}`:`Buy for ${money(b.price)} · Rank ${b.rankRequired}`}</p></div><div class="button-row">${owned ? actionButton("collectBusiness",b.id,"Collect "+money(ready),ready===0) + (b.upgradeCost!==null?actionButton("upgradeBusiness",b.id,"Upgrade "+money(b.upgradeCost),p.cash<b.upgradeCost):"") : p.rank<b.rankRequired?lock(b.rankRequired):actionButton("buyBusiness",b.id,"Buy",p.cash<b.price)}</div></div>`;
+        return `<div class="simple-row"><div><strong>${esc(b.title)}</strong><p class="muted small">${esc(b.description)}</p><p class="small">${owned?`Level ${b.level} · ${money(b.rate)} every 10 min · <span data-business-ready="${esc(b.id)}">Ready: ${money(ready)}</span> · <span data-business-next="${esc(b.id)}">${cycles>=businesses!.capTicks?"Earnings capped":`Next payment in ${Math.max(1,Math.ceil((businesses!.tickSeconds-((Date.now()+offset-Date.parse(b.collectedAt!))/1000)%businesses!.tickSeconds)))}s`}</span>`:`Buy for ${money(b.price)} · Rank ${b.rankRequired}`}</p></div><div class="button-row">${owned ? actionButton("collectBusiness",b.id,"Collect "+money(ready),ready===0).replace("<button ",`<button data-business-collect="${esc(b.id)}" `) + (b.upgradeCost!==null?actionButton("upgradeBusiness",b.id,"Upgrade "+money(b.upgradeCost),p.cash<b.upgradeCost):"") : p.rank<b.rankRequired?lock(b.rankRequired):actionButton("buyBusiness",b.id,"Buy",p.cash<b.price)}</div></div>`;
       }).join("") : '<p class="padded muted">Loading businesses…</p>') + section("OFFLINE EARNINGS",'<p class="padded muted">Income accumulates in 10-minute cycles while you are offline. Up to eight hours of earnings can be collected per business. Upgrades increase earnings.</p>');
     case "bank":
       return (
@@ -984,6 +984,26 @@ function updateTimers() {
     reset.textContent = remaining
       ? `${Math.floor(remaining / 3600)}h ${Math.floor((remaining % 3600) / 60)}m to reset`
       : "New assignments ready — refresh";
+  }
+  if (page === "businesses" && businesses) {
+    const now = Date.now() + offset;
+    for (const b of businesses.businesses) {
+      if (!b.level || !b.collectedAt) continue;
+      const elapsed = Math.max(0, Math.floor((now - Date.parse(b.collectedAt)) / 1000));
+      const cycles = Math.min(businesses.capTicks, Math.floor(elapsed / businesses.tickSeconds));
+      const ready = cycles * b.rate;
+      const readyLabel = document.querySelector<HTMLElement>(`[data-business-ready="${b.id}"]`);
+      if (readyLabel) readyLabel.textContent = "Ready: " + money(ready);
+      const nextLabel = document.querySelector<HTMLElement>(`[data-business-next="${b.id}"]`);
+      if (nextLabel) nextLabel.textContent = cycles >= businesses.capTicks
+        ? "Earnings capped — collect now"
+        : "Next payment in " + duration(businesses.tickSeconds - elapsed % businesses.tickSeconds);
+      const collect = document.querySelector<HTMLButtonElement>(`[data-business-collect="${b.id}"]`);
+      if (collect && !busy) {
+        collect.disabled = ready === 0;
+        collect.textContent = "Collect " + money(ready);
+      }
+    }
   }
   const bar = document.querySelector<HTMLProgressElement>("header progress");
   if (bar) bar.value = energy;
