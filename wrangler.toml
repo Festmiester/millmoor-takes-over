@@ -12,7 +12,7 @@ name = "millmoor-takes-over-test"
 workers_dev = true
 [env.test.vars]
 ENVIRONMENT = "test"
-ALLOW_TEST_ACCOUNTS = "true"
+ALLOW_TEST_ACCOUNTS = "false"
 [env.test.assets]
 directory = "./dist"
 binding = "ASSETS"

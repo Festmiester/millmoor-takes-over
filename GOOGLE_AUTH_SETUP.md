@@ -1,5 +1,7 @@
 # Google sign-in — remaining setup
 
+CONFIGURED, LINKAGE STILL PENDING: Kurt entered secrets and reported sign-in working on 16 November 2026. Later database check found 0 Google identities and 2 temporary clubs in the playable world. API reports google=true/testAccounts=false. Preserve current sessions and use Connect Google from the saved club, then verify actual database identity/second-browser access. Do not use TinyFish: owner explicitly prohibited further use.
+
 Live game: https://millmoor-takes-over-test.kurttev327.workers.dev/
 
 Server code is ready for authorization-code OIDC with PKCE, state, nonce, issuer/audience/signature checks and verified-email allowlisting. A real Google sign-in has NOT completed. Cloudflare plugin works; TinyFish Google Console inspection could not start because its wallet is empty.

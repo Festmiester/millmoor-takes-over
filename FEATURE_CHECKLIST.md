@@ -1,5 +1,7 @@
 # Feature checklist — all 48 recovered comparison rows
 
+Latest: Google configured; owner reported login working but no Google-linked identity found on database check. New temporary registration disabled; preserve existing sessions pending completed linkage. Added server-authoritative Daily Assignments with UTC reset, cash ledger and replay/concurrency protections. See current PROJECT_STATUS.md.
+
 16 Nov follow-up: Lovable source reviewed read-only; compact mobile category/submenu navigation and seven Manager File panels implemented. Google allowlist/cancellation/account-link handling implemented and tested. Live Google login remains blocked pending game credentials; see GOOGLE_AUTH_SETUP.md.
 
 Last updated: 16 November 2026. Source: `bootleggers_vs_takes_over_next_update.xlsx`, read in full. This table preserves the comparison, not a claim of full parity. “Implemented” means source plus relevant SQL/API/DOM checks where available; live browser/deployment validation is still pending for the release.

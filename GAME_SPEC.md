@@ -1,5 +1,7 @@
 # Millmoor Takes Over — game specification
 
+Current private test: Google configured; completed club linkage remains unverified after database inspection. New temporary signup disabled; existing sessions retained to avoid lockout. Daily Assignments under Main: 5 activities (£40), one bank deposit (£25), 3 net-profitable activities (£75). All recorded on server per player and UTC date, maximum £140/day, claimable once per objective. No XP from daily claims. No player data deleted.
+
 Follow-up UI: compact mobile categories and seven real Manager File panels. Private Google testing uses verified-email allowlisting; credentials and live consent remain pending. See GOOGLE_AUTH_SETUP.md.
 
 Last updated: 16 November 2026. Independent browser game, version 0.1.0.

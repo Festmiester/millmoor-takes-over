@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import worker from "../server/worker";
+import { neon } from "@neondatabase/serverless";
 const DATABASE_URL = readFileSync(".env.integration", "utf8").match(
   /^DATABASE_URL=(.+)$/m,
 )![1];
@@ -136,6 +137,33 @@ await check("session logout invalidates server access", async () => {
   assert.equal((await call("/api/logout", {}, sessionB)).status, 200);
   assert.equal((await call("/api/state", undefined, sessionB)).status, 401);
 });
+await check(
+  "closing registration preserves existing clubs until Google linkage",
+  async () => {
+    const r = await worker.fetch(
+      new Request(origin + "/api/state", { headers: { Cookie: sessionA } }),
+      { ...env, ALLOW_TEST_ACCOUNTS: "false" },
+    );
+    assert.equal(r.status, 200);
+  },
+);
+await check(
+  "closing test access preserves Google-linked sessions",
+  async () => {
+    const current = await call("/api/state", undefined, sessionA);
+    const p = ((await current.json()) as any).player;
+    const sql = neon(DATABASE_URL);
+    await sql`UPDATE mto_players SET identity=${"google:fixture-" + crypto.randomUUID()} WHERE id=${p.id}::uuid`;
+    const r = await worker.fetch(
+      new Request(origin + "/api/state", { headers: { Cookie: sessionA } }),
+      { ...env, ALLOW_TEST_ACCOUNTS: "false" },
+    );
+    assert.equal(r.status, 200);
+    const linked = (await r.json()) as any;
+    assert.equal(linked.googleLinked, true);
+    assert.equal(linked.player.id, p.id);
+  },
+);
 await check("OAuth fails closed until credentials exist", async () => {
   assert.equal((await call("/auth/google")).status, 503);
   assert.equal((await call("/auth/callback?state=fake&code=fake")).status, 503);

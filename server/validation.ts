@@ -60,6 +60,7 @@ export function validateAction(data: unknown) {
     "buyListing",
     "cancelListing",
     "challenge",
+    "claimDaily",
   ];
   if (!allowed.includes(kind)) throw new GameError("Unknown action");
   const input =
@@ -82,5 +83,10 @@ export function validateAction(data: unknown) {
     throw new GameError("Invalid player or listing");
   if (kind === "challenge" && !uuid(input.target))
     throw new GameError("Invalid manager");
+  if (
+    kind === "claimDaily" &&
+    !["shift", "savings", "profit"].includes(String(input.id))
+  )
+    throw new GameError("Unknown daily assignment");
   return { key: d.key, kind, input };
 }

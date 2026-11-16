@@ -273,9 +273,18 @@ async function handle(r: Request, env: Env) {
   if (path === "/api/action" && r.method === "POST") {
     await throttle(sql, "action:" + pid, 90);
     const d = validateAction(await body(r));
+    if (d.kind === "claimDaily") {
+      const rows =
+        await sql`SELECT mto_claim_daily(${pid}::uuid,${d.key}::uuid,${String(d.input.id)}) AS result`;
+      return json(rows[0].result);
+    }
     const rows =
       await sql`SELECT mto_action(${pid}::uuid,${d.key}::uuid,${d.kind},${JSON.stringify(d.input)}::jsonb) AS result`;
     return json(rows[0].result);
+  }
+  if (path === "/api/daily" && r.method === "GET") {
+    const rows = await sql`SELECT mto_daily(${pid}::uuid) AS daily`;
+    return json(rows[0].daily);
   }
   if (path === "/api/profile" && r.method === "POST") {
     const b = await body(r);
@@ -285,10 +294,11 @@ async function handle(r: Request, env: Env) {
     return json({ ok: true });
   }
   if (path === "/api/world" && r.method === "GET") {
+    const showTest = true; // Keep current clubs visible until Google linkage is verified.
     const results = await sql.transaction([
-      sql`SELECT id,name,club,mto_rank(xp) AS rank,(SELECT name FROM mto_ranks WHERE id=mto_rank(xp)) AS "rankName",cash+bank AS wealth,mto_power(mto_players) AS power,region,last_seen>now()-interval '2 minutes' AS online FROM mto_players ORDER BY xp DESC,wins DESC,created_at LIMIT 50`,
-      sql`SELECT count(*)::integer AS total,count(*) FILTER(WHERE last_seen>now()-interval '2 minutes')::integer AS online FROM mto_players`,
-      sql`SELECT l.id,l.seller,l.asset,l.price,p.club FROM mto_listings l JOIN mto_players p ON p.id=l.seller WHERE l.buyer IS NULL ORDER BY l.created_at DESC LIMIT 50`,
+      sql`SELECT id,name,club,mto_rank(xp) AS rank,(SELECT name FROM mto_ranks WHERE id=mto_rank(xp)) AS "rankName",cash+bank AS wealth,mto_power(mto_players) AS power,region,last_seen>now()-interval '2 minutes' AS online FROM mto_players WHERE (${showTest} OR identity LIKE 'google:%') ORDER BY xp DESC,wins DESC,created_at LIMIT 50`,
+      sql`SELECT count(*)::integer AS total,count(*) FILTER(WHERE last_seen>now()-interval '2 minutes')::integer AS online FROM mto_players WHERE (${showTest} OR identity LIKE 'google:%')`,
+      sql`SELECT l.id,l.seller,l.asset,l.price,p.club FROM mto_listings l JOIN mto_players p ON p.id=l.seller WHERE l.buyer IS NULL AND (${showTest} OR p.identity LIKE 'google:%') ORDER BY l.created_at DESC LIMIT 50`,
     ]);
     return json({
       managers: results[0],

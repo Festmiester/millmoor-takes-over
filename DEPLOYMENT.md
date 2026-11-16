@@ -1,5 +1,7 @@
 # Deployment and operations
 
+CURRENT: Latest deployment `5f276b5f37694de5907ac35fad84e82e`, daily assignments live. Google configured but a playable-world database check found no Google-linked identity yet; retain existing sessions pending completed linkage. ALLOW_TEST_ACCOUNTS=false blocks all new disposable registrations. Every future deployment MUST preserve secret_text bindings (DATABASE_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ALLOWED_GOOGLE_EMAILS) and must not re-enable temporary signup. User prohibits TinyFish. Migration 004 applied to both game branches without resetting assets/progress. Older pending-Google/keep-signup instructions below are historical and superseded.
+
 Latest test deployment: `809f0ea3503940ae8fa4d6ebfe3b540f` (16 Nov 2026). Manager File and Google-readiness batch. Live browser verified saved progress and character/skills panels. Google is still not configured.
 
 Current Google blocker: credentials absent; TinyFish wallet empty. No payment authorised or made. GOOGLE_AUTH_SETUP.md contains exact settings. Next API deployment must preserve existing secret bindings (`keep_bindings: ["secret_text"]`) so user-entered Google credentials cannot be wiped. Keep disposable signup available until the owner successfully links the existing club and re-login is verified.

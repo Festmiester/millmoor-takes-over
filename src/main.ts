@@ -20,6 +20,19 @@ let config = { google: false, testAccounts: false, environment: "test" },
 let page = location.hash.slice(1) || "office";
 let openCategory: string | null = null;
 let googleLinked = false;
+let daily: {
+  day: string;
+  resetsAt: string;
+  goals: {
+    id: string;
+    title: string;
+    description: string;
+    target: number;
+    progress: number;
+    reward: number;
+    claimed: boolean;
+  }[];
+} | null = null;
 const esc = (v: unknown) =>
   String(v ?? "").replace(
     /[&<>"']/g,
@@ -39,6 +52,7 @@ const groups = [
     name: "Main",
     links: [
       ["office", "Club Office"],
+      ["daily", "Daily Assignments"],
       ["profile", "My Manager"],
       ["online", "Managers Online"],
       ["leaderboard", "Hall of Fame"],
@@ -196,7 +210,7 @@ function render() {
   updateTimers();
 }
 function renderLogin() {
-  app.innerHTML = `<main class="entry"><a class="entry-brand" href="#office"><img src="/crest.svg" alt="Millmoor Takes Over"></a><span class="eyebrow">AN INDEPENDENT FOOTBALL WORLD</span><h1>Small beginnings.<br><em>Big ambitions.</em></h1><p>Start on the local touchline. Build a football empire.<br>Every manager in this world is making their own way.</p><div class="entry-form panel"><div class="panel-title"><h2>OPEN YOUR CLUB</h2><span>Test world</span></div><div class="entry-body">${config.google ? '<a class="google-button" href="/auth/google">Continue with Google →</a>' : '<p class="muted">Google sign-in is being connected.</p>'}${config.testAccounts ? `<form id="signup"><label>Manager name<input name="name" minlength="2" maxlength="24" placeholder="Your manager name" required autocomplete="nickname"></label><label>Club name<input name="club" minlength="2" maxlength="32" placeholder="Your club name" required></label><button class="action full" type="submit">Enter the test world →</button><p class="small muted">Test access lasts seven days in this browser. Signing out ends access. Link Google when available to keep your club across devices.</p></form>` : "<p>Club registration opens when sign-in is configured.</p>"}<p id="login-error" role="alert"></p></div></div><footer>Persistent multiplayer · Original football content · No real-money purchases</footer></main>`;
+  app.innerHTML = `<main class="entry"><a class="entry-brand" href="#office"><img src="/crest.svg" alt="Millmoor Takes Over"></a><span class="eyebrow">AN INDEPENDENT FOOTBALL WORLD</span><h1>Small beginnings.<br><em>Big ambitions.</em></h1><p>Start on the local touchline. Build a football empire.<br>Every manager in this world is making their own way.</p><div class="entry-form panel"><div class="panel-title"><h2>OPEN YOUR CLUB</h2><span>Test world</span></div><div class="entry-body">${config.google ? '<a class="google-button" href="/auth/google">Continue with Google →</a>' : '<p class="muted">Google sign-in is being connected.</p>'}${config.testAccounts ? `<form id="signup"><label>Manager name<input name="name" minlength="2" maxlength="24" placeholder="Your manager name" required autocomplete="nickname"></label><label>Club name<input name="club" minlength="2" maxlength="32" placeholder="Your club name" required></label><button class="action full" type="submit">Enter the test world →</button><p class="small muted">Test access lasts seven days in this browser. Signing out ends access. Link Google when available to keep your club across devices.</p></form>` : config.google ? '<p class="small muted">Private test world. Sign in with your approved Google account.</p>' : "<p>Club registration opens when sign-in is configured.</p>"}<p id="login-error" role="alert"></p></div></div><footer>Persistent multiplayer · Original football content · No real-money purchases</footer></main>`;
   if (new URLSearchParams(location.search).get("signin") === "cancelled") {
     document.querySelector("#login-error")!.textContent =
       "Google sign-in was cancelled. Your club has not changed.";
@@ -206,6 +220,27 @@ function renderLogin() {
 function content() {
   const p = player!;
   switch (page) {
+    case "daily":
+      return (
+        banner(
+          "A LITTLE BUSINESS, EVERY DAY",
+          "Daily Assignments",
+          "Three club goals. Fresh opportunities each day. Cash rewards, no entry fee.",
+        ) +
+        (daily
+          ? section(
+              "TODAY'S ASSIGNMENTS",
+              `<div class="simple-row"><span class="small muted">Resets at 00:00 UTC · ${esc(daily.day)}</span><span class="chip" data-daily-reset="${esc(daily.resetsAt)}"></span></div>` +
+                daily.goals
+                  .map(
+                    (g) =>
+                      `<article class="daily-goal"><div><h3>${esc(g.title)}</h3><p class="small muted">${esc(g.description)}</p><span class="chip">${g.progress} / ${g.target}</span> <strong class="reward">${money(g.reward)}</strong><progress value="${g.progress}" max="${g.target}" aria-label="${esc(g.title)} progress"></progress></div>${g.claimed ? '<span class="owned">✓ Claimed</span>' : actionButton("claimDaily", g.id, g.progress >= g.target ? "Claim reward" : "In progress", g.progress < g.target)}</article>`,
+                  )
+                  .join(""),
+            )
+          : '<p class="empty">Loading today’s assignments…</p>') +
+        '<div class="simple-row"><a href="#office">Club Office →</a><a href="#bank">Club Bank →</a></div>'
+      );
     case "office":
       return (
         banner(
@@ -605,6 +640,7 @@ async function refreshPage() {
   if (!player) return;
   try {
     await refreshState();
+    if (page === "daily") daily = await api("/api/daily");
     if (["online", "leaderboard", "market", "rivals"].includes(page))
       await refreshWorld();
     if (page === "history") events = (await api("/api/events")).events;
@@ -644,6 +680,7 @@ async function sendAction(payload: unknown) {
     player = r.player;
     offset = Date.parse(r.serverTime) - Date.now();
     lastResult = r;
+    if (page === "daily") daily = await api("/api/daily");
     if (["market", "rivals"].includes(page)) await refreshWorld();
     busy = false;
     render();
@@ -804,7 +841,19 @@ function updateTimers() {
         (el.textContent =
           energy === 100 ? "Full energy" : `+2 in ${60 - (elapsed % 60)}s`),
     );
-  const bar = document.querySelector<HTMLProgressElement>("progress");
+  const reset = document.querySelector<HTMLElement>("[data-daily-reset]");
+  if (reset) {
+    const remaining = Math.max(
+      0,
+      Math.ceil(
+        (Date.parse(reset.dataset.dailyReset!) - Date.now() - offset) / 1000,
+      ),
+    );
+    reset.textContent = remaining
+      ? `${Math.floor(remaining / 3600)}h ${Math.floor((remaining % 3600) / 60)}m to reset`
+      : "New assignments ready — refresh";
+  }
+  const bar = document.querySelector<HTMLProgressElement>("header progress");
   if (bar) bar.value = energy;
   document
     .querySelectorAll<HTMLButtonElement>("[data-cooldown]")
@@ -842,7 +891,8 @@ setInterval(async () => {
   try {
     await refreshState();
     updateTimers();
-    const energy = document.querySelector<HTMLProgressElement>("progress");
+    const energy =
+      document.querySelector<HTMLProgressElement>("header progress");
     if (energy) energy.value = player!.energy;
   } catch {}
 }, 30000);
@@ -851,6 +901,7 @@ document.addEventListener("visibilitychange", () => {
 });
 async function loadGame() {
   await refreshState();
+  if (page === "daily") daily = await api("/api/daily");
   await refreshWorld();
   render();
   const pending = sessionStorage.getItem("mto_pending");

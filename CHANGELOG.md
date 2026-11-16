@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-16 — Google private test and daily assignments
+- Disabled temporary registrations. Google settings and redirect work, but database check found existing clubs are not yet Google-linked. Preserve existing sessions until linkage completes.
+- No temporary player data deleted or sessions revoked.
+- Added three server-tracked daily assignments: 5 activity attempts (£40), one bank deposit (£25) and 3 profitable activities (£75).
+- UTC midnight reset, independent once-per-day claims, transaction ledger and replay/concurrency protection. No rank progression awarded for claims or banking.
+- Added migration 004 and real-database daily tests on the verification branch. No TinyFish usage permitted going forward.
+
 ## 2026-11-16 — Navigation, manager file and Google readiness
 - Added Lovable-inspired mobile category buttons with two-column destination menus.
 - Added Character, Items, Players, Skills, Bank, Wallet and Perks panels inside the Manager File.

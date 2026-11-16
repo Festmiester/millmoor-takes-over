@@ -151,6 +151,7 @@ check("bank form updates persisted cash through the real backend", () => {
 });
 for (const route of [
   "scouting",
+  "daily",
   "recruitment",
   "squad",
   "training",
@@ -173,6 +174,7 @@ for (const route of [
         (
           {
             scouting: "Talent Scouts",
+            daily: "Daily Assignments",
             recruitment: "Recruitment",
             squad: "My Squad",
             training: "Training Centre",
