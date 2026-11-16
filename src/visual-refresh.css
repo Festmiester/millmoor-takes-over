@@ -1,4 +1,4 @@
-/* Visual-only skin: warm old-school football RPG, inspired by the reference. */
+/* Compact football RPG skin. */
 :root {
   font-family: "PT Sans", "Trebuchet MS", sans-serif;
   color: #d9d1c2;
@@ -10,6 +10,63 @@
   --red: #c5a15c;
   --green: #89bd8b;
   color-scheme: dark;
+}
+/* Results never occupy space in the game page. Native dialogs provide focus,
+   Escape handling and a backdrop on phones and desktops. */
+#action-result {
+  width: min(460px, calc(100vw - 28px));
+  max-height: calc(100dvh - 40px);
+  overflow: auto;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #b48c49;
+  background: #1b1711;
+  color: #e1d3b9;
+  box-shadow: 0 16px 70px #000b;
+}
+#action-result::backdrop { background: #000a; backdrop-filter: blur(2px); }
+#action-result .result { margin: 0; padding: 18px; }
+#action-result .dismiss { min-width: 40px; min-height: 40px; }
+.toast:not([hidden]) {
+  position: fixed; inset: auto 14px max(18px, env(safe-area-inset-bottom));
+  width: min(430px, calc(100vw - 28px)); margin: auto; z-index: 100;
+  padding: 14px; background: #32251d; border: 1px solid #c58061;
+  box-shadow: 0 6px 25px #0009; font-size: 14px;
+}
+.activity-reward { font-size: 12px; color: #c3b292; margin: 5px 0; }
+.activity-reward b { color: #e5c581; }
+.activity-details { font-size: 12px; color: #ad9e86; }
+.activity-details summary { cursor: pointer; padding: 5px 0; color: #d7bc88; }
+.activity-details p { margin: 5px 0; }
+.next-chapter { display:flex; align-items:center; gap:12px; padding:10px; font-size:12px; }
+.next-chapter > div { flex:1; min-width:0; }
+.next-chapter span { display:block; color:var(--muted); font-size:11px; margin:3px 0; }
+.next-chapter progress { width:100%; height:5px; accent-color:#c9a25a; }
+.next-chapter a { white-space:nowrap; color:#dfbd79; }
+@media (max-width:760px) {
+  #content .page-heading p { display:none; }
+  #content .activity-row { display:grid; grid-template-columns:minmax(0,1fr) auto; padding:9px; gap:8px; align-items:start; }
+  #content .activity-copy { min-width:0; }
+  #content .activity-action { width:auto; margin:0; padding:0; align-self:center; }
+  #content .activity-action .action { min-width:76px !important; min-height:40px; padding:7px 9px; }
+  #content .activity-title h3 { font-size:14px; line-height:1.25; }
+  #content .activity-meta { font-size:11px; gap:3px 8px; margin-top:4px; }
+  #content .activity-reward { font-size:11px; margin:4px 0 0; }
+  #content .activity-details { font-size:11px; }
+  #content .activity-details summary { padding:4px 0 0; }
+  #content .activity-details[open] { padding-bottom:5px; }
+  #content .panel-title { min-height:25px; padding:4px 8px; }
+  #content .approach { min-height:36px; padding:5px 7px; }
+  #content .panel { margin-bottom:7px; }
+  #content .shop-item, #content .player-row, #content .chapter, #content .daily-goal { padding:10px; gap:8px; }
+  #content .stat-grid > div { padding:10px; }
+  #content .profile-character > img { width:76px; height:86px; }
+  #content .profile-character { padding:9px; gap:10px; }
+  #content .profile-character h2 { font-size:20px; }
+  #content .profile-rank { margin:4px 0 7px; }
+  #character { max-height:calc(100dvh - 24px); overflow:auto; }
+  .table-wrap { max-width:100%; overflow:auto; }
+  .next-chapter { padding:8px; }
 }
 body {
   background:

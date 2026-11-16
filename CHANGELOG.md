@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-16 — mobile density and action popups
+- Moved action results into native modal dialogs without pushing page content.
+- Collapsed detailed odds/descriptions; kept cash, chance, cost, energy and timers visible.
+- Tightened shared phone cards and placed activity controls beside details.
+- Added Office next-chapter progress and a ready-to-claim reward shortcut.
+
 ## 2026-11-16 — illustrated manager and visual refresh
 - Added an original illustrated manager to header, profile and Manager File.
 - Applied compact warm black-and-gold styling and self-hosted Oswald/PT Sans fonts.

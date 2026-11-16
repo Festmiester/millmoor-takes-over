@@ -4,6 +4,10 @@ Updated 16 November 2026. Read this file first when continuing.
 
 ## Live game
 
+### Current release — modal results and compact phone cards
+
+Deployment `cb4340f2d98047db99644589de1347bb` supersedes IDs below. Action results use a centred native dialog outside page flow, with focus, backdrop, Escape and dismiss support. Errors float above the page. Activities now show cost/energy/time, net payout and chance, with descriptions/full odds behind Details & odds. Phone actions sit alongside content. Shared mobile panels, profile, shop, squad and chapter rows tightened; long lists intentionally scroll. Added live next-chapter progress and conditional reward claim in Office using existing server chapter action, not new economy rules. Build and packaged assets pass; focused client modal/placement checks added. Live retained QA session completed Flyers, received centred modal and preserved saved state. Physical Android layout still needs owner review. No schema/auth changes. Lucien needs Google allowlist entry; do not open signup globally or re-enable test accounts.
+
 ### Current visual release — illustrated manager
 
 Deployment `2c059f057a664818aa384e63814accf8` supersedes deployment IDs below. Original illustrated manager now appears in the header, profile and Manager File. Warm black-and-gold panels, compact layout and self-hosted Oswald/PT Sans typography follow the inspected Lovable direction. No gameplay, database or authentication changes. Live browser verified the portrait and Manager File using the retained Deployment QA session. Build, 9 unit tests, 16 focused client checks and 4 byte-exact packaged image/font checks passed. Mobile CSS updated; physical Android rendering has not been independently tested. See ASSET_PROVENANCE.md.

@@ -1,5 +1,7 @@
 # Deployment and operations
 
+Latest deployment `cb4340f2d98047db99644589de1347bb`: modal results, compact cards and chapter shortcut. No migrations/auth changes; secret_text retained and signup false. Upload omitted placement hints: region-style hint failed validation and geographic hint requires an unavailable plan feature. Standard placement deployed successfully. Do not add paid placement or request credential reconnection for those feature errors.
+
 Current visual release: `2c059f057a664818aa384e63814accf8`. No migrations. Binary WebP/WOFF2 assets are base64-embedded by package-plugin-deploy.mjs and returned as bytes with correct MIME. Run build, packaging and scripts/assets-smoke.mjs before upload. Live browser portrait verified. All secret_text retained and ALLOW_TEST_ACCOUNTS=false. This supersedes IDs below.
 
 Latest release: `cd844ec787db4b22984e9c8252ebdbdc`, Lovable-inspired usability and scouting expansion. Migrations 1–8 applied to both game branches, with pending 005–008 committed together on live. Live config keeps google=true/testAccounts=false; catalog exposes five real scout contacts/capacity/profiles and manifest MIME is application/manifest+json. Live browser office review passed with previous cash preserved. Secret bindings retained. Historical deployment IDs below are superseded.

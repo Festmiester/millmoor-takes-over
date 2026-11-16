@@ -190,6 +190,9 @@ function notices() {
   const pending = sessionStorage.getItem("mto_pending");
   if (pending && !busy)
     return `<div class="result failure" role="status"><p>A saved move needs confirmation from the server.</p><button class="action" data-retry>Retry saved move</button></div>`;
+  return "";
+}
+function resultPopup() {
   return lastResult
     ? `<div role="status" class="result ${lastResult.success ? "success" : "failure"}"><span class="result-icon">${lastResult.success ? "✓" : "!"}</span><div><strong>${lastResult.acquiredPlayer ? "New player signed" : lastResult.success ? "Good business" : "A setback"}</strong><p>${esc(lastResult.message)}</p><div class="outcome-facts"><span class="${lastResult.cashDelta >= 0 ? "positive" : "negative"}">Net ${lastResult.cashDelta >= 0 ? "+" : "−"}${money(Math.abs(lastResult.cashDelta))}</span>${lastResult.energySpent ? `<span>−${lastResult.energySpent} energy</span>` : ""}${lastResult.promotedTo ? `<strong>★ Promoted to ${esc(lastResult.promotedTo)}</strong>` : ""}</div>${lastResult.acquiredPlayer ? `<div class="signing-card">${playerSummary(lastResult.acquiredPlayer)}<a href="#squad">View squad →</a></div>` : ""}</div><button class="dismiss" data-dismiss aria-label="Dismiss result">×</button></div>`
     : "";
@@ -219,7 +222,7 @@ function render() {
       ? '<div class="offline-notice" role="status">Offline — reconnect to play. Your saved club is held on the server.</div>'
       : "") +
     mobileNavigation() +
-    `<div class="world-strip"><span><i class="live-dot"></i> SOUTH YORKSHIRE</span><span class="test-label">INDEPENDENT TEST WORLD</span><span data-clock>${new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" })} UK</span></div><div class="game-layout"><aside class="sidebar ${menuOpen ? "is-open" : ""}">${navigation()}<button class="logout" data-logout>Sign out</button><p class="sidebar-footer">YOUR CLUB. YOUR EMPIRE.<br>Est. in South Yorkshire</p></aside><main id="content" tabindex="-1"><div class="breadcrumb">Millmoor Takes Over <span>/</span> ${esc(groups.flatMap((g) => g.links).find(([id]) => id === page)?.[1] || "Club Office")}</div>${notices()}${content()}</main>${rail()}</div><dialog id="character" aria-label="Your character"></dialog><div class="toast" role="alert" hidden></div>`;
+    `<div class="world-strip"><span><i class="live-dot"></i> SOUTH YORKSHIRE</span><span class="test-label">INDEPENDENT TEST WORLD</span><span data-clock>${new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" })} UK</span></div><div class="game-layout"><aside class="sidebar ${menuOpen ? "is-open" : ""}">${navigation()}<button class="logout" data-logout>Sign out</button><p class="sidebar-footer">YOUR CLUB. YOUR EMPIRE.<br>Est. in South Yorkshire</p></aside><main id="content" tabindex="-1"><div class="breadcrumb">Millmoor Takes Over <span>/</span> ${esc(groups.flatMap((g) => g.links).find(([id]) => id === page)?.[1] || "Club Office")}</div>${notices()}${content()}</main>${rail()}</div><dialog id="character" aria-label="Your character"></dialog><dialog id="action-result" aria-label="Action result">${resultPopup()}</dialog><div class="toast" role="alert" hidden></div>`;
   if (config.google && !googleLinked) {
     document
       .querySelector("#content")
@@ -286,7 +289,8 @@ function content() {
           `<div class="tier-tabs" role="group" aria-label="Activity tier">${[1, 2, 3, 4, 5].map((n) => `<button data-tier="${n}" class="${tier === n ? "active" : ""}">Tier ${n}</button>`).join("")}</div>${activityRows(catalog.activities.filter((a) => a.category === "office" && a.tier === tier))}`,
           "Independent timers",
         ) +
-        `<p class="footnote">Success improves your proficiency. Each activity has its own cooldown. Failed attempts still use energy and entry fees.</p>`
+        `<p class="footnote">Independent timers · Failed moves still use energy and entry costs.</p>` +
+        (p.chapter < chapters.length ? section("YOUR NEXT CHAPTER", `<div class="next-chapter"><div><strong>${esc(chapters[p.chapter])}</strong><span>${Math.min(p.wins, (p.chapter + 1) * 10)} / ${(p.chapter + 1) * 10} successful moves · ${money(100 * (p.chapter + 1))} reward</span><progress aria-label="Chapter successful moves" max="${(p.chapter + 1) * 10}" value="${Math.min(p.wins, (p.chapter + 1) * 10)}"></progress></div>${p.wins >= (p.chapter + 1) * 10 && p.rank >= Math.min(12, Math.floor(p.chapter / 2)) ? actionButton("chapter", "", "Claim chapter", false) : '<a href="#campaign">Objectives →</a>'}</div>`) : '')
       );
     case "scouting":
     case "recruitment":
@@ -549,7 +553,7 @@ function activityRows(rows: Activity[]) {
             ] as const)
           : null;
         const total = weights?.reduce((n, [, w]) => n + w, 0) || 1;
-        return `<article class="activity-row ${locked ? "locked" : ""}"><div class="activity-icon" aria-hidden="true">${a.asset ? "⌕" : a.id === "flyers" ? "▧" : a.id === "coaching" ? "⚑" : "▤"}</div><div class="activity-copy"><div class="activity-title"><h3>${esc(a.title)}</h3>${a.asset ? '<span class="chip">PLAYER ASSET</span>' : ""}</div><p>${esc(a.description)}</p><div class="activity-meta"><span>◷ ${duration(a.seconds)}</span><span>ϟ ${a.energy} energy</span><span>Outlay ${money(a.cost)}</span></div>${!locked ? `<div class="ratings"><span>Success <b>${q.chance}%</b><meter min="0" max="100" value="${q.chance}" aria-label="Success chance"></meter></span><span>Net on success <b>${q.net >= 0 ? "+" : ""}${money(q.net)}</b></span><span>Avg cash <b class="${q.expected >= 0 ? "positive" : "negative"}">${q.expected >= 0 ? "+" : ""}${money(q.expected)}</b></span></div><p class="small muted">Payout ${money(q.gross)} · Average excludes player value; success is not guaranteed.</p>${weights ? `<div class="rarity-odds">${weights.map(([r, w]) => `<span class="rarity ${rarityClass(r)}">${r} ${((100 * w) / total).toFixed(1)}%</span>`).join("")}</div><p class="small muted">Power ${profile!.minPower}–${profile!.maxPower} · Odds apply after a successful signing.</p>` : ""}` : ""}</div><div class="activity-action">${locked ? lock(a.rankRequired) : actionButton("activity", a.id, "Commit", full || !!seconds(a.id) || p.cash < a.cost || p.energy < a.energy, a.id)}</div></article>`;
+        return `<article class="activity-row ${locked ? "locked" : ""}"><div class="activity-icon" aria-hidden="true">${a.asset ? "⌕" : a.id === "flyers" ? "▧" : a.id === "coaching" ? "⚑" : "▤"}</div><div class="activity-copy"><div class="activity-title"><h3>${esc(a.title)}</h3>${a.asset ? '<span class="chip">PLAYER ASSET</span>' : ""}</div><div class="activity-meta"><span>◷ ${duration(a.seconds)}</span><span>ϟ ${a.energy} energy</span><span>Outlay ${money(a.cost)}</span></div>${!locked ? `<div class="activity-reward">Net on success <b>${q.net >= 0 ? "+" : ""}${money(q.net)}</b> · ${q.chance}% chance</div><details class="activity-details"><summary>Details & odds</summary><p>${esc(a.description)}</p><div class="ratings"><span>Success <b>${q.chance}%</b><meter min="0" max="100" value="${q.chance}" aria-label="Success chance"></meter></span><span>Net on success <b>${q.net >= 0 ? "+" : ""}${money(q.net)}</b></span><span>Avg cash <b class="${q.expected >= 0 ? "positive" : "negative"}">${q.expected >= 0 ? "+" : ""}${money(q.expected)}</b></span></div><p class="small muted">Payout ${money(q.gross)} · Average excludes player value; success is not guaranteed.</p>${weights ? `<div class="rarity-odds">${weights.map(([r, w]) => `<span class="rarity ${rarityClass(r)}">${r} ${((100 * w) / total).toFixed(1)}%</span>`).join("")}</div><p class="small muted">Power ${profile!.minPower}–${profile!.maxPower} · Odds apply after a successful signing.</p>` : ""}</details>` : ""}</div><div class="activity-action">${locked ? lock(a.rankRequired) : actionButton("activity", a.id, "Commit", full || !!seconds(a.id) || p.cash < a.cost || p.energy < a.energy, a.id)}</div></article>`;
       })
       .join("") || '<p class="empty">No contacts in this tier.</p>'
   );
@@ -772,6 +776,7 @@ async function sendAction(payload: unknown) {
     busy = false;
     render();
     if (reopen) showCharacter(reopen);
+    document.querySelector<HTMLDialogElement>("#action-result")?.showModal();
   } catch (e) {
     busy = false;
     const status = (e as { status?: number }).status;
@@ -832,8 +837,8 @@ app.addEventListener("click", async (e) => {
     return;
   }
   if (b.hasAttribute("data-dismiss")) {
+    document.querySelector<HTMLDialogElement>("#action-result")?.close();
     lastResult = null;
-    render();
     return;
   }
   if (b.dataset.approach) {

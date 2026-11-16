@@ -1,5 +1,7 @@
 # Millmoor Takes Over — game specification
 
+Action results are modal overlays rather than page banners. Activity summaries retain cost, energy, timer, chance and net reward; detailed assumptions and rarity odds are expandable. Office exposes existing campaign successful-move progress and a claim shortcut when both rank and move requirements are satisfied. It does not expose hidden rank progress or change chapter payouts.
+
 ## Visual identity
 
 Warm black/brown surfaces and antique-gold panels/actions, condensed Oswald headings and PT Sans body text. Compact responsive shell. An original illustrated football gaffer is the default character portrait across the header, profile and Manager File; it is not a user photograph or a change to account identity.

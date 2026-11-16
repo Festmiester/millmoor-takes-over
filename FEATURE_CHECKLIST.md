@@ -1,5 +1,7 @@
 # Feature checklist — all 48 recovered comparison rows
 
+Latest mobile follow-up: native result dialog (live QA verified), compact activity rows with expandable odds, shared mobile row spacing, floating errors and next-chapter progress/claim in Office. Desktop live review and client modal checks passed; physical phone visual verification pending.
+
 Visual follow-up complete: illustrated manager in header/profile/Manager File, warm black-and-gold panels, compact layout and locally served Lovable font families. Live Manager File reviewed. Android device review remains outstanding.
 
 Lovable follow-up: outcome net/energy/promotion/signing details, explicit action reasons/timers, equipment slots, bank-all buttons, player filters/rarity badges and app manifest. Five scouting contacts with actual server rarity/power data and 30-player ownership capacity. Existing assets retained. LOVABLE_REVIEW.md maps the reference features to adaptations; inert reference routes and local-only economy are not copied.

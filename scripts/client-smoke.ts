@@ -127,6 +127,12 @@ writeFileSync("evidence/office-desktop.html", html);
   d.querySelector('[data-action="activity"][data-id="flyers"]') as HTMLElement
 ).click();
 await waitFor(() => !!d.querySelector(".result"));
+check("action results are modal popups outside page content", () => {
+  assert.equal((d.querySelector("#action-result") as HTMLDialogElement).open, true);
+  assert.equal(d.querySelector("#content .result"), null);
+  assert.ok(d.querySelector(".activity-details summary"));
+  assert.ok(d.querySelector('[aria-label="Chapter successful moves"]'));
+});
 check(
   "clicking an activity receives a saved server result and a live cooldown",
   () => {
