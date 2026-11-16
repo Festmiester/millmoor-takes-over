@@ -38,7 +38,7 @@ let googleLinked = false;
 let activeCharacterTab = "character";
 let squadPosition = "all",
   squadSort = "power";
-let businesses: { businesses: { id:string; title:string; description:string; purchasePrice:number; incomePerHour:number; rankRequired:number; ownedId:string|null; level:number|null; accruedAt:string|null; remainderSeconds:number|null }[]; serverTime:string } | null = null;
+let businesses: { businesses: { id:string; title:string; description:string; price:number; rate:number; rankRequired:number; level:number; baseRate:number; upgradeCost:number|null; collectedAt:string|null; available:number }[]; serverTime:string; tickSeconds:number; capTicks:number } | null = null;
 let daily: {
   day: string;
   resetsAt: string;
@@ -316,7 +316,12 @@ function content() {
         )
       );
     case "businesses":
-      return banner("BUILD YOUR EMPIRE","Club Businesses","Own businesses that earn while you are away. Collect up to 12 hours of accumulated income per business.") + section("YOUR BUSINESSES", businesses ? businesses.businesses.map(b => { const owned = !!b.ownedId; const elapsed = owned && b.accruedAt ? Math.max(0,Math.floor((Date.now()+offset-Date.parse(b.accruedAt))/1000)) : 0; const eligible = Math.min(elapsed,43200)+(b.remainderSeconds||0); const ready = Math.floor(eligible/3600)*b.incomePerHour*(b.level||1); return `<div class="simple-row"><div><strong>${esc(b.title)}</strong><p class="muted small">${esc(b.description)}</p><p class="small">${money(b.incomePerHour)}/hour · ${owned ? `Earned: ${money(ready)} (12h maximum)` : `Purchase: ${money(b.purchasePrice)}`}</p></div>${owned ? actionButton("claimBusiness",b.ownedId!,"Collect "+money(ready),ready===0) : p.rank < b.rankRequired ? lock(b.rankRequired) : actionButton("buyBusiness",b.id,"Buy",p.cash < b.purchasePrice)}</div>`; }).join("") : `<p class="muted padded">Loading businesses…</p>`) + section("HOW IT WORKS",`<p class="padded muted">Businesses accrue income while you are away. Each collection pays whole hours, carries forward partial hours and caps unattended accrual at 12 hours. No purchases use real money.</p>`);
+      return banner("BUILD YOUR EMPIRE","Club Businesses","Buy businesses, upgrade them and collect income earned while you are away.") + section("YOUR BUSINESSES", businesses ? businesses.businesses.map(b => {
+        const owned=b.level>0;
+        const cycles=owned&&b.collectedAt?Math.min(businesses!.capTicks,Math.max(0,Math.floor((Date.now()+offset-Date.parse(b.collectedAt))/1000/businesses!.tickSeconds))):0;
+        const ready=cycles*b.rate;
+        return `<div class="simple-row"><div><strong>${esc(b.title)}</strong><p class="muted small">${esc(b.description)}</p><p class="small">${owned?`Level ${b.level} · ${money(b.rate)} every 10 min · Ready: ${money(ready)}`:`Buy for ${money(b.price)} · Rank ${b.rankRequired}`}</p></div><div class="button-row">${owned ? actionButton("collectBusiness",b.id,"Collect "+money(ready),ready===0) + (b.upgradeCost!==null?actionButton("upgradeBusiness",b.id,"Upgrade "+money(b.upgradeCost),p.cash<b.upgradeCost):"") : p.rank<b.rankRequired?lock(b.rankRequired):actionButton("buyBusiness",b.id,"Buy",p.cash<b.price)}</div></div>`;
+      }).join("") : '<p class="padded muted">Loading businesses…</p>') + section("OFFLINE EARNINGS",'<p class="padded muted">Income accumulates in 10-minute cycles while you are offline. Up to eight hours of earnings can be collected per business. Upgrades increase earnings.</p>');
     case "bank":
       return (
         banner(
