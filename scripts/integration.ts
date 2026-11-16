@@ -72,6 +72,8 @@ await test("independent cooldowns permit coaching immediately after flyers", asy
   assert.ok(p.cooldowns.coaching);
 });
 await test("cooldowns reject immediate repeats even with a different key", async () => {
+  // Keep this assertion independent of network delays between earlier requests.
+  await sql`UPDATE mto_players SET cooldowns=jsonb_set(cooldowns,'{flyers}',to_jsonb(now()+interval '1 hour')) WHERE id=${beginner}`;
   await assert.rejects(
     action(beginner, "activity", { id: "flyers" }),
     /cooling down/,

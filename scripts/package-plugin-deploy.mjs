@@ -8,6 +8,7 @@ const mime = {
   ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".svg": "image/svg+xml",
+  ".webmanifest": "application/manifest+json",
 };
 function walk(dir, prefix = "") {
   for (const file of readdirSync(dir)) {

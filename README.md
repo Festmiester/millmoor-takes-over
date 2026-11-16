@@ -1,5 +1,9 @@
 # Millmoor Takes Over
 
+[Play the test game](https://millmoor-takes-over-test.kurttev327.workers.dev/). New temporary registration is disabled; Google credentials are configured. Existing sessions remain valid while club linking is verified.
+
+[LOVABLE_REVIEW.md](LOVABLE_REVIEW.md) maps the strongest reference UI features to the independent implementation, including the expanded scouting and roster system.
+
 An independent, persistent multiplayer football empire browser game. HTML/CSS/TypeScript frontend, Cloudflare Worker API and Neon PostgreSQL. No Floot, Lovable or Replit runtime. Original crest, pitch art, player names and football content.
 
 Start with [PROJECT_STATUS.md](PROJECT_STATUS.md). [GAME_SPEC.md](GAME_SPEC.md) records the recovered agreement and current balancing. [FEATURE_CHECKLIST.md](FEATURE_CHECKLIST.md) preserves all 48 comparison rows and honest implementation status. [DEPLOYMENT.md](DEPLOYMENT.md) describes test deployment, credentials and production gates.

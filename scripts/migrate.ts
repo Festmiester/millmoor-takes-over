@@ -16,6 +16,8 @@ await sql`CREATE TABLE IF NOT EXISTS mto_migrations(version integer PRIMARY KEY,
 const applied = new Set(
   (await sql`SELECT version FROM mto_migrations`).map((x) => x.version),
 );
+const pendingStatements: string[] = [];
+const pendingFiles: string[] = [];
 for (const file of readdirSync("migrations")
   .filter((f) => f.endsWith(".sql"))
   .sort()) {
@@ -26,6 +28,11 @@ for (const file of readdirSync("migrations")
       encoding: "utf8",
     }),
   ) as string[];
-  await sql.transaction(statements.map((s) => sql.query(s, [])));
-  console.log("Applied", file);
+  pendingStatements.push(...statements);
+  pendingFiles.push(file);
+}
+// Apply the whole pending batch atomically, including any follow-up function fixes.
+if (pendingStatements.length) {
+  await sql.transaction(pendingStatements.map((s) => sql.query(s, [])));
+  for (const file of pendingFiles) console.log("Applied", file);
 }

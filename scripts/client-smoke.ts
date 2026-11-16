@@ -1,5 +1,5 @@
 import { JSDOM } from "jsdom";
-import { transform } from "esbuild";
+import { build } from "esbuild";
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import worker from "../server/worker";
@@ -51,12 +51,19 @@ dom.window.HTMLDialogElement.prototype.showModal = function () {
 dom.window.HTMLDialogElement.prototype.close = function () {
   this.open = false;
 };
-const js = await transform(source, {
-  loader: "ts",
+const js = await build({
+  stdin: {
+    contents: source,
+    loader: "ts",
+    resolveDir: process.cwd() + "/src",
+    sourcefile: "main.ts",
+  },
+  bundle: true,
+  write: false,
   format: "iife",
   target: "es2022",
 });
-dom.window.eval(js.code);
+dom.window.eval(js.outputFiles![0].text);
 async function waitFor(fn: () => boolean) {
   const start = Date.now();
   while (!fn()) {
@@ -91,6 +98,17 @@ check("higher office tiers show rank locks instead of enabled actions", () => {
   assert.equal(d.querySelectorAll('[data-action="activity"]').length, 0);
   assert.match(d.querySelector(".activity-row")!.textContent!, /Pee Wee/);
   (d.querySelector('[data-tier="1"]') as HTMLElement).click();
+});
+check("activity cards distinguish outlay, net payout and expected cash", () => {
+  assert.match(d.querySelector(".activity-row")!.textContent!, /Outlay/);
+  assert.match(
+    d.querySelector(".activity-row")!.textContent!,
+    /Net on success/,
+  );
+  assert.equal(
+    d.querySelector('[data-action="activity"]')!.textContent,
+    "Commit",
+  );
 });
 check("mobile menu has real category destinations", () => {
   (d.querySelector("[data-menu]") as HTMLElement).click();
@@ -149,7 +167,12 @@ check("bank form updates persisted cash through the real backend", () => {
     before - 50,
   );
 });
-for (const route of [
+d.querySelector<HTMLButtonElement>('[data-bank-all="deposit"]')!.click();
+await waitFor(() => d.querySelector(".stat-grid strong")?.textContent === "£0");
+check("deposit all banks the entire real balance", () =>
+  assert.equal(d.querySelector(".stat-grid strong")!.textContent, "£0"),
+);
+for (const route of (process.argv.includes('--quick') ? [] : [
   "scouting",
   "daily",
   "recruitment",
@@ -166,7 +189,7 @@ for (const route of [
   "rivals",
   "leaderboard",
   "online",
-]) {
+])) {
   dom.window.location.hash = route;
   await waitFor(
     () =>
@@ -196,6 +219,14 @@ for (const route of [
   check(`${route} route renders a functional destination`, () =>
     assert.ok(d.querySelector("main h1")),
   );
+  if (route === "scouting")
+    check("five scouting contacts show real rank locks", () =>
+      assert.equal(d.querySelectorAll(".activity-row").length, 5),
+    );
+  if (route === "shop")
+    check("equipment overview shows four slots", () =>
+      assert.equal(d.querySelectorAll(".equipment-slots > div").length, 4),
+    );
 }
 check("mobile categories open a compact destination menu", () => {
   d.querySelector<HTMLButtonElement>('[data-category="Campaign"]')!.click();
@@ -226,6 +257,29 @@ for (const tab of [
     );
   });
 }
+d.querySelector<HTMLButtonElement>('[data-character-tab="bank"]')!.click();
+const modalBank = d.querySelector<HTMLFormElement>("#character #bank")!;
+modalBank.querySelector<HTMLInputElement>('[name="amount"]')!.value = "10";
+modalBank.dispatchEvent(
+  new dom.window.SubmitEvent("submit", {
+    bubbles: true,
+    cancelable: true,
+    submitter:
+      modalBank.querySelector<HTMLButtonElement>('[value="withdraw"]')!,
+  }),
+);
+await waitFor(
+  () => d.querySelector("header [data-cash]")?.textContent === "£10",
+);
+check("bank transaction keeps the Manager File open on the same tab", () => {
+  assert.equal(d.querySelector<HTMLDialogElement>("#character")!.open, true);
+  assert.equal(
+    d
+      .querySelector('[data-character-tab="bank"]')!
+      .getAttribute("aria-pressed"),
+    "true",
+  );
+});
 console.log(
   `${passed} client DOM checks passed against real backend. Native visual review is separate.`,
 );

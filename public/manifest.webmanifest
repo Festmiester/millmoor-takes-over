@@ -1,0 +1,12 @@
+{
+  "id": "/",
+  "name": "Millmoor Takes Over",
+  "short_name": "Takes Over",
+  "description": "Your club. Your empire. An online football browser RPG.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#171718",
+  "theme_color": "#171718",
+  "icons": [{"src":"/crest.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}

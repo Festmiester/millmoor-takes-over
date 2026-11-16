@@ -4,6 +4,10 @@ Updated 16 November 2026. Read this file first when continuing.
 
 ## Live game
 
+### Latest live batch — scouting and Lovable adaptations
+
+Deployment `cd844ec787db4b22984e9c8252ebdbdc` is live. See LOVABLE_REVIEW.md for the inspected reference and exact adaptations. Added net/expected quotes, action reasons, richer outcomes, equipment slots, bank-all, squad filters/sorting, standalone manifest and offline feedback. Added five real scouting contacts, rarity-sensitive asset values/age and server capacity of 30 including listings. Existing players preserved. Migrations 005–008 applied atomically to the playable world after verification. Live browser confirmed the new office cards and saved cash; live catalog returns five contacts, capacity 30 and five profiles. Manifest serves with correct MIME type. Temporary signup remains off; Google settings preserved.
+
 Latest deployment: `5f276b5f37694de5907ac35fad84e82e`. Live browser verified Daily Assignments shows three real goals, saved same-day progress and UTC reset countdown. Google secrets retained; signup disabled. Existing QA session intentionally retained until user linkage is verified.
 
 https://millmoor-takes-over-test.kurttev327.workers.dev/
@@ -13,7 +17,7 @@ Independent Cloudflare test Worker: millmoor-takes-over-test.
 Account: f4a22d9ed0da8861ada7f65faa6fcac6.
 Production release remains subject to Kurt's approval.
 
-## Authentication — completed
+## Authentication — configured; club linkage still awaiting verification
 
 Kurt entered game-specific Google credentials in Cloudflare and reported Google sign-in working. Live /api/config reports google=true and testAccounts=false. The Google redirect uses the correct HTTPS callback, PKCE S256 and secure cookie.
 IMPORTANT: a subsequent read-only check found 0 google identities and 2 test identities in the playable-world database. Thus completed account linkage is NOT independently verified despite the user's successful sign-in report. Keep existing sessions and club visibility intact; do not invalidate old temporary sessions until actual linkage is confirmed. New temporary registration is disabled and its live POST returns Test accounts are disabled.
@@ -39,7 +43,8 @@ Lovable AppShell/CharacterModal/nav-config reviewed read-only at feb6b086253a0df
 
 Separate Neon project billowing-lake-52144871, database takes_over, London.
 Playable-world branch br-summer-voice-za1jzfnf. Verification branch br-purple-field-za1hfpw1.
-Migrations 1–4 applied to both branches. Tests create fixtures ONLY on verification.
+Migrations 1–8 applied to both branches. Tests create fixtures ONLY on verification.
+Current batch passed: 9 unit checks, 14 API checks, 14 original database integration checks (including competing buyers), 6 new scouting checks, 5 daily checks, 33 full client DOM checks plus a 16-check focused run covering Manager File transaction continuity. Build and Worker dry-run pass. Tests found two SQL naming ambiguities and an old cooldown assertion that depended on network speed; all corrected before live rollout. Browser office layout verified; actual phone review remains with Kurt.
 Latest: 7 unit tests, 14 API checks, 5 daily database tests and 29 client checks passed. Daily tests cover UTC reset, player isolation, incomplete goals, duplicate replay, concurrent claims and no rank rewards. API checks verify that closing new registration preserves both current temporary-club sessions and Google-linked sessions. Build and Worker dry-run pass.
 Earlier: 14 original database integration checks passed. Kurt reported successful Google sign-in, but completed database account linkage remains unverified as described above.
 
@@ -51,7 +56,7 @@ GitHub source is updated with connector Git tree/commit/ref operations under Fes
 
 ## Next substantial work
 
-Verify new daily gameplay on Kurt's real linked session through his review. Continue broader parity: full old Floot read-only recovery and legacy-import mapping, richer scouting/rarity/capacity, activities/proficiency refinement, business/staff/passive economy, organised cooperative ventures and messaging. FEATURE_CHECKLIST.md preserves all 48 comparisons. Current formulas are the independent game's test baseline, not verified Bootleggers internals.
+Continue business/staff/passive economy, organised cooperative ventures, richer regional effects and messaging. Complete actual Google-club linkage verification without resetting the saved club. Full old Floot read-only recovery/legacy-import mapping and proficiency refinement remain. Scouting/rarity/capacity expansion is now live. FEATURE_CHECKLIST.md preserves all 48 comparisons. Current formulas are the independent game's test baseline, not verified Bootleggers internals.
 Do not claim all Floot parity is complete. No legacy players imported yet.
 
 ## Non-negotiable boundaries

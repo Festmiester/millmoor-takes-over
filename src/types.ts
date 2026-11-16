@@ -5,6 +5,7 @@ export interface Asset {
   rarity: string;
   power: number;
   value: number;
+  age?: number;
 }
 export interface Gear {
   id: string;
@@ -27,6 +28,7 @@ export interface Player {
   mastery: Record<string, number>;
   inventory: Gear[];
   squad: Asset[];
+  ownedCount?: number;
   attributes: Record<string, number>;
   region: string;
   wins: number;
@@ -62,6 +64,19 @@ export interface Catalog {
   ranks: { id: number; name: string }[];
   activities: Activity[];
   items: Item[];
+  squadCapacity?: number;
+  scouting?: Record<
+    string,
+    {
+      local: number;
+      promising: number;
+      elite: number;
+      legendary: number;
+      minPower: number;
+      maxPower: number;
+      capacity: number;
+    }
+  >;
 }
 export interface Manager {
   id: string;

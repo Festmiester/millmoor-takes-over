@@ -1,5 +1,13 @@
 # Millmoor Takes Over — game specification
 
+## Scouting and usability follow-up
+
+Five scouting contacts unlock at ranks 1/2/4/7/10, with costs £25/90/300/1000/3500 and existing per-action energy/cooldowns. New acquisitions get age 17–33, power tier×5 through tier×5+9, and weighted rarity from mto_scout_profile (normalise returned weights for probabilities). Base value is max(cost×2+40, power×12), multiplied Local×1, Promising×2, Elite×4, Legendary×8. Existing players retain original values and metadata. These are independent-game test balance choices.
+
+Capacity is 30 OWNED players including active listings; buying/scouting at capacity is rejected before costs. Replays return the original receipt even when full. Listing cannot bypass capacity. Oversized legacy squads are retained and may sell/release players.
+
+Quotes show outlay, gross payout, net success payout and expected cash using actual approach/chance/facility adjustments; expected cash explicitly excludes asset value. No heat/fines or promotion skill-point system is implied. See LOVABLE_REVIEW.md for adopted UI versus deliberately separate gameplay designs.
+
 Current private test: Google configured; completed club linkage remains unverified after database inspection. New temporary signup disabled; existing sessions retained to avoid lockout. Daily Assignments under Main: 5 activities (£40), one bank deposit (£25), 3 net-profitable activities (£75). All recorded on server per player and UTC date, maximum £140/day, claimable once per objective. No XP from daily claims. No player data deleted.
 
 Follow-up UI: compact mobile categories and seven real Manager File panels. Private Google testing uses verified-email allowlisting; credentials and live consent remain pending. See GOOGLE_AUTH_SETUP.md.

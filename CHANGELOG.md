@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-16 — Lovable review, scouting depth and usability
+- Adapted the strongest verified Lovable UI details; full comparison in LOVABLE_REVIEW.md.
+- Added net/expected cash quotes, clear blocked action labels, richer outcome feedback and signing cards.
+- Added four further scouting tiers, public rarity profiles, server-generated age and rarity-sensitive values.
+- Enforced 30 owned players including active transfer listings, with receipt replay checked before capacity.
+- Added squad position filters/sorting, rarity badges, equipment slot cards and bank-all shortcuts.
+- Kept Manager File open after actions; added standalone app manifest and offline feedback.
+- Migrations 005–008 preserve existing assets. Verification found SQL naming conflicts; follow-up migrations fix these before live rollout. Pending migrations now apply as one atomic batch.
+
 ## 2026-11-16 — Google private test and daily assignments
 - Disabled temporary registrations. Google settings and redirect work, but database check found existing clubs are not yet Google-linked. Preserve existing sessions until linkage completes.
 - No temporary player data deleted or sessions revoked.

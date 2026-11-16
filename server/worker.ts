@@ -114,11 +114,14 @@ async function handle(r: Request, env: Env) {
       sql`SELECT id,name FROM mto_ranks ORDER BY id`,
       sql`SELECT id,title,description,category,tier,rank_required AS "rankRequired",cost,reward,energy,seconds,chance,asset FROM mto_activities ORDER BY rank_required,tier,id`,
       sql`SELECT id,title,slot,price,power,rank_required AS "rankRequired",description FROM mto_items ORDER BY price`,
+      sql`SELECT t,mto_scout_profile(t) AS profile FROM generate_series(1,5)t`,
     ]);
     return json({
       ranks: results[0],
       activities: results[1],
       items: results[2],
+      scouting: Object.fromEntries(results[3].map((x) => [x.t, x.profile])),
+      squadCapacity: 30,
     });
   }
   if (path === "/api/test-account" && r.method === "POST") {

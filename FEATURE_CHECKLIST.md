@@ -1,5 +1,7 @@
 # Feature checklist — all 48 recovered comparison rows
 
+Lovable follow-up: outcome net/energy/promotion/signing details, explicit action reasons/timers, equipment slots, bank-all buttons, player filters/rarity badges and app manifest. Five scouting contacts with actual server rarity/power data and 30-player ownership capacity. Existing assets retained. LOVABLE_REVIEW.md maps the reference features to adaptations; inert reference routes and local-only economy are not copied.
+
 Latest: Google configured; owner reported login working but no Google-linked identity found on database check. New temporary registration disabled; preserve existing sessions pending completed linkage. Added server-authoritative Daily Assignments with UTC reset, cash ledger and replay/concurrency protections. See current PROJECT_STATUS.md.
 
 16 Nov follow-up: Lovable source reviewed read-only; compact mobile category/submenu navigation and seven Manager File panels implemented. Google allowlist/cancellation/account-link handling implemented and tested. Live Google login remains blocked pending game credentials; see GOOGLE_AUTH_SETUP.md.

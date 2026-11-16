@@ -13,6 +13,7 @@
     "test:integration": "node --import tsx scripts/integration.ts",
     "test:api": "node --import tsx scripts/api-smoke.ts",
     "test:daily": "node --import tsx scripts/daily-smoke.ts",
+    "test:scouting": "node --import tsx scripts/scouting-smoke.ts",
     "test:client": "node --import tsx scripts/client-smoke.ts",
     "migrate": "node --import tsx scripts/migrate.ts"
   },

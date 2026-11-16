@@ -1,5 +1,9 @@
 # Deployment and operations
 
+Latest release: `cd844ec787db4b22984e9c8252ebdbdc`, Lovable-inspired usability and scouting expansion. Migrations 1–8 applied to both game branches, with pending 005–008 committed together on live. Live config keeps google=true/testAccounts=false; catalog exposes five real scout contacts/capacity/profiles and manifest MIME is application/manifest+json. Live browser office review passed with previous cash preserved. Secret bindings retained. Historical deployment IDs below are superseded.
+
+New scouting batch uses migrations 005–008. Apply pending files as ONE transaction with updated migrate.ts, so intermediate function fixes cannot be observed by live gameplay. Package-plugin-deploy supports application/manifest+json for the new manifest. Preserve all secret_text and ALLOW_TEST_ACCOUNTS=false.
+
 CURRENT: Latest deployment `5f276b5f37694de5907ac35fad84e82e`, daily assignments live. Google configured but a playable-world database check found no Google-linked identity yet; retain existing sessions pending completed linkage. ALLOW_TEST_ACCOUNTS=false blocks all new disposable registrations. Every future deployment MUST preserve secret_text bindings (DATABASE_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ALLOWED_GOOGLE_EMAILS) and must not re-enable temporary signup. User prohibits TinyFish. Migration 004 applied to both game branches without resetting assets/progress. Older pending-Google/keep-signup instructions below are historical and superseded.
 
 Latest test deployment: `809f0ea3503940ae8fa4d6ebfe3b540f` (16 Nov 2026). Manager File and Google-readiness batch. Live browser verified saved progress and character/skills panels. Google is still not configured.

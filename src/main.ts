@@ -1,5 +1,13 @@
 import "./style.css";
-import type { Player, Catalog, Activity, World, GameEvent } from "./types";
+import type {
+  Player,
+  Catalog,
+  Activity,
+  World,
+  GameEvent,
+  Asset,
+} from "./types";
+import { quoteActivity, rarityClass, sortSquad } from "./game-view";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 let player: Player | null = null,
   catalog: Catalog = { ranks: [], activities: [], items: [] },
@@ -15,11 +23,20 @@ let config = { google: false, testAccounts: false, environment: "test" },
   menuOpen = false,
   busy = false,
   offset = 0,
-  lastResult: { success: boolean; message: string; cashDelta: number } | null =
-    null;
+  lastResult: {
+    success: boolean;
+    message: string;
+    cashDelta: number;
+    energySpent?: number;
+    promotedTo?: string;
+    acquiredPlayer?: Asset;
+  } | null = null;
 let page = location.hash.slice(1) || "office";
 let openCategory: string | null = null;
 let googleLinked = false;
+let activeCharacterTab = "character";
+let squadPosition = "all",
+  squadSort = "power";
 let daily: {
   day: string;
   resetsAt: string;
@@ -173,7 +190,7 @@ function notices() {
   if (pending && !busy)
     return `<div class="result failure" role="status"><p>A saved move needs confirmation from the server.</p><button class="action" data-retry>Retry saved move</button></div>`;
   return lastResult
-    ? `<div role="status" class="result ${lastResult.success ? "success" : "failure"}"><span class="result-icon">${lastResult.success ? "✓" : "!"}</span><div><strong>${lastResult.success ? "Good business" : "A setback"}</strong><p>${esc(lastResult.message)}</p></div><button class="dismiss" data-dismiss aria-label="Dismiss result">×</button></div>`
+    ? `<div role="status" class="result ${lastResult.success ? "success" : "failure"}"><span class="result-icon">${lastResult.success ? "✓" : "!"}</span><div><strong>${lastResult.acquiredPlayer ? "New player signed" : lastResult.success ? "Good business" : "A setback"}</strong><p>${esc(lastResult.message)}</p><div class="outcome-facts"><span class="${lastResult.cashDelta >= 0 ? "positive" : "negative"}">Net ${lastResult.cashDelta >= 0 ? "+" : "−"}${money(Math.abs(lastResult.cashDelta))}</span>${lastResult.energySpent ? `<span>−${lastResult.energySpent} energy</span>` : ""}${lastResult.promotedTo ? `<strong>★ Promoted to ${esc(lastResult.promotedTo)}</strong>` : ""}</div>${lastResult.acquiredPlayer ? `<div class="signing-card">${playerSummary(lastResult.acquiredPlayer)}<a href="#squad">View squad →</a></div>` : ""}</div><button class="dismiss" data-dismiss aria-label="Dismiss result">×</button></div>`
     : "";
 }
 function section(title: string, content: string, sub = "") {
@@ -197,6 +214,9 @@ function render() {
   }
   app.innerHTML =
     header() +
+    (navigator.onLine === false
+      ? '<div class="offline-notice" role="status">Offline — reconnect to play. Your saved club is held on the server.</div>'
+      : "") +
     mobileNavigation() +
     `<div class="world-strip"><span><i class="live-dot"></i> SOUTH YORKSHIRE</span><span class="test-label">INDEPENDENT TEST WORLD</span><span data-clock>${new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" })} UK</span></div><div class="game-layout"><aside class="sidebar ${menuOpen ? "is-open" : ""}">${navigation()}<button class="logout" data-logout>Sign out</button><p class="sidebar-footer">YOUR CLUB. YOUR EMPIRE.<br>Est. in South Yorkshire</p></aside><main id="content" tabindex="-1"><div class="breadcrumb">Millmoor Takes Over <span>/</span> ${esc(groups.flatMap((g) => g.links).find(([id]) => id === page)?.[1] || "Club Office")}</div>${notices()}${content()}</main>${rail()}</div><dialog id="character" aria-label="Your character"></dialog><div class="toast" role="alert" hidden></div>`;
   if (config.google && !googleLinked) {
@@ -207,6 +227,13 @@ function render() {
         '<div class="account-notice"><span>Keep this club on every device.</span><a href="/auth/google">Connect Google →</a></div>',
       );
   }
+  if (page === "bank")
+    document
+      .querySelector("#bank")
+      ?.insertAdjacentHTML(
+        "afterend",
+        `<div class="bank-shortcuts"><button class="secondary" data-bank-all="deposit" ${player.cash < 1 ? "disabled" : ""}>Deposit all ${money(player.cash)}</button><button class="secondary" data-bank-all="withdraw" ${player.bank < 1 ? "disabled" : ""}>Withdraw all ${money(player.bank)}</button></div>`,
+      );
   updateTimers();
 }
 function renderLogin() {
@@ -274,7 +301,11 @@ function content() {
         ) +
         section(
           "YOUR SQUAD",
-          `<div class="simple-row"><span>${p.squad.length} signed players</span><a href="#squad">Manage your players →</a></div>`,
+          `<div class="simple-row"><span>${p.ownedCount ?? p.squad.length} / ${catalog.squadCapacity || 30} owned (including listed)</span><a href="#squad">Manage your players →</a></div>${p.squad
+            .slice(-3)
+            .reverse()
+            .map((s) => `<div class="simple-row">${playerSummary(s)}</div>`)
+            .join("")}`,
         )
       );
     case "bank":
@@ -312,9 +343,26 @@ function content() {
         ) +
         section(
           "SIGNED PLAYERS",
-          p.squad.length
-            ? `<div class="squad-list">${p.squad.map((s) => `<article class="player-row"><span class="position">${esc(s.position)}</span><div><h3>${esc(s.name)}</h3><small>${esc(s.rarity)} · Power ${s.power} · Release ${money(s.value)}</small></div><div class="button-row">${actionButton("sellPlayer", s.id, "Release")}<button class="secondary" data-list="${s.id}">List</button></div></article>`).join("")}</div>`
-            : '<p class="empty">No players signed yet. Talent Scouts opens at Pee Wee.</p>',
+          `<div class="squad-toolbar"><label>Position<select data-squad-position>${["all", "GK", "DEF", "MID", "FWD"].map((v) => `<option value="${v}" ${v === squadPosition ? "selected" : ""}>${v === "all" ? "All positions" : v}</option>`).join("")}</select></label><label>Sort<select data-squad-sort>${[
+            ["power", "Power"],
+            ["value", "Value"],
+            ["name", "Name"],
+          ]
+            .map(
+              ([v, label]) =>
+                `<option value="${v}" ${v === squadSort ? "selected" : ""}>${label}</option>`,
+            )
+            .join(
+              "",
+            )}</select></label><span>${p.ownedCount ?? p.squad.length} / ${catalog.squadCapacity || 30} owned</span></div><div class="squad-list">${
+            sortSquad(p.squad, squadPosition, squadSort)
+              .map(
+                (s) =>
+                  `<article class="player-row">${playerSummary(s)}<div class="button-row">${actionButton("sellPlayer", s.id, "Release")}<button class="secondary" data-list="${s.id}">List</button></div></article>`,
+              )
+              .join("") ||
+            '<p class="empty">No players match. Talent Scouts opens at Pee Wee.</p>'
+          }</div>`,
         ) +
         section(
           "THE TRANSFER MARKET",
@@ -485,33 +533,56 @@ function activityRows(rows: Activity[]) {
     rows
       .map((a) => {
         const locked = p.rank < a.rankRequired;
-        const chance = Math.max(
-          10,
-          Math.min(
-            95,
-            a.chance +
-              (p.mastery[a.id] || 0) +
-              Math.min(6, p.facility) +
-              (approach === "safe" ? 10 : approach === "bold" ? -10 : 0),
-          ),
-        );
-        return `<article class="activity-row ${locked ? "locked" : ""}"><div class="activity-icon" aria-hidden="true">${a.asset ? "⌕" : a.id === "flyers" ? "▧" : a.id === "coaching" ? "⚑" : "▤"}</div><div class="activity-copy"><div class="activity-title"><h3>${esc(a.title)}</h3>${a.asset ? '<span class="chip">PLAYER ASSET</span>' : ""}</div><p>${esc(a.description)}</p><div class="activity-meta"><span>◷ ${duration(a.seconds)}</span><span>ϟ ${a.energy} energy</span><span>${a.cost ? money(a.cost) + " entry" : "No entry fee"}</span><span class="reward">${money(Math.floor(a.reward * (approach === "safe" ? 0.8 : approach === "bold" ? 1.3 : 1)))} on success</span></div><div class="ratings"><span>Success <b>${locked ? "—" : chance + "%"}</b><meter min="0" max="100" value="${locked ? 0 : chance}" aria-label="Success chance"></meter></span><span>Exposure <b>${a.tier < 3 ? "Low" : a.tier < 5 ? "Medium" : "High"}</b></span></div></div><div class="activity-action">${locked ? lock(a.rankRequired) : actionButton("activity", a.id, "Start", !!seconds(a.id) || p.cash < a.cost || p.energy < a.energy, a.id)}</div></article>`;
+        const q = quoteActivity(p, a, approach);
+        const full =
+          a.asset &&
+          (p.ownedCount ?? p.squad.length) >= (catalog.squadCapacity || 30);
+        const profile = a.asset ? catalog.scouting?.[a.tier] : null;
+        const weights = profile
+          ? ([
+              ["Local", profile.local],
+              ["Promising", profile.promising],
+              ["Elite", profile.elite],
+              ["Legendary", profile.legendary],
+            ] as const)
+          : null;
+        const total = weights?.reduce((n, [, w]) => n + w, 0) || 1;
+        return `<article class="activity-row ${locked ? "locked" : ""}"><div class="activity-icon" aria-hidden="true">${a.asset ? "⌕" : a.id === "flyers" ? "▧" : a.id === "coaching" ? "⚑" : "▤"}</div><div class="activity-copy"><div class="activity-title"><h3>${esc(a.title)}</h3>${a.asset ? '<span class="chip">PLAYER ASSET</span>' : ""}</div><p>${esc(a.description)}</p><div class="activity-meta"><span>◷ ${duration(a.seconds)}</span><span>ϟ ${a.energy} energy</span><span>Outlay ${money(a.cost)}</span></div>${!locked ? `<div class="ratings"><span>Success <b>${q.chance}%</b><meter min="0" max="100" value="${q.chance}" aria-label="Success chance"></meter></span><span>Net on success <b>${q.net >= 0 ? "+" : ""}${money(q.net)}</b></span><span>Avg cash <b class="${q.expected >= 0 ? "positive" : "negative"}">${q.expected >= 0 ? "+" : ""}${money(q.expected)}</b></span></div><p class="small muted">Payout ${money(q.gross)} · Average excludes player value; success is not guaranteed.</p>${weights ? `<div class="rarity-odds">${weights.map(([r, w]) => `<span class="rarity ${rarityClass(r)}">${r} ${((100 * w) / total).toFixed(1)}%</span>`).join("")}</div><p class="small muted">Power ${profile!.minPower}–${profile!.maxPower} · Odds apply after a successful signing.</p>` : ""}` : ""}</div><div class="activity-action">${locked ? lock(a.rankRequired) : actionButton("activity", a.id, "Commit", full || !!seconds(a.id) || p.cash < a.cost || p.energy < a.energy, a.id)}</div></article>`;
       })
       .join("") || '<p class="empty">No contacts in this tier.</p>'
   );
 }
+function playerSummary(s: Asset) {
+  return `<span class="position">${esc(s.position)}</span><div class="player-summary"><h3>${esc(s.name)} <span class="rarity ${rarityClass(s.rarity)}">${esc(s.rarity)}</span></h3><small>${s.age ? "Age " + s.age + " · " : ""}Power ${s.power} · Value ${money(s.value)}</small></div>`;
+}
 function inventory() {
   const p = player!;
-  return section(
-    "YOUR EQUIPMENT",
-    p.inventory.length
-      ? p.inventory
-          .map(
-            (i) =>
-              `<div class="simple-row"><div><strong>${esc(i.title)}</strong><p class="small muted">${esc(i.slot)} · +${i.power} power</p></div>${actionButton("equip", i.id, i.equipped ? "Unequip" : "Equip")}</div>`,
-          )
-          .join("")
-      : '<p class="empty">Nothing equipped yet. Your first pair of Touchline Boots is waiting in the shop.</p>',
+  return (
+    section(
+      "EQUIPPED SLOTS",
+      `<div class="equipment-slots">${[
+        ["feet", "Boots"],
+        ["body", "Clothing"],
+        ["hands", "Tools"],
+        ["accessory", "Accessory"],
+      ]
+        .map(([slot, label]) => {
+          const item = p.inventory.find((i) => i.slot === slot && i.equipped);
+          return `<div><small>${label}</small><strong>${item ? esc(item.title) : "Empty slot"}</strong><span>${item ? "+" + item.power + " power" : "No bonus equipped"}</span></div>`;
+        })
+        .join("")}</div>`,
+    ) +
+    section(
+      "YOUR EQUIPMENT",
+      p.inventory.length
+        ? p.inventory
+            .map(
+              (i) =>
+                `<div class="simple-row"><div><strong>${esc(i.title)}</strong><p class="small muted">${esc(i.slot)} · +${i.power} power</p></div>${actionButton("equip", i.id, i.equipped ? "Unequip" : "Equip")}</div>`,
+            )
+            .join("")
+        : '<p class="empty">Nothing equipped yet. Your first pair of Touchline Boots is waiting in the shop.</p>',
+    )
   );
 }
 function managerRows(challenge = false, online = false) {
@@ -524,6 +595,7 @@ function managerRows(challenge = false, online = false) {
     : '<p class="empty">No other managers here yet. Invite someone to the test world and build your rivalry.</p>';
 }
 function showCharacter(tab = "character") {
+  activeCharacterTab = tab;
   const p = player!,
     d = document.querySelector<HTMLDialogElement>("#character")!;
   const tabs = [
@@ -574,7 +646,7 @@ function showCharacter(tab = "character") {
         Object.entries(p.mastery)
           .map(
             ([id, v]) =>
-              `<div class="simple-row"><span>${esc(catalog.activities.find((a) => a.id === id)?.title || id)}</span><strong>+${Number(v).toFixed(1)} chance points</strong></div>`,
+              `<div class="simple-row"><span>${esc(catalog.activities.find((a) => a.id === id)?.title || id)}</span><strong>${Number(v) >= 0 ? "+" : ""}${Number(v).toFixed(1)} chance points</strong></div>`,
           )
           .join("") ||
           '<p class="empty">Complete activities to build proficiency.</p>',
@@ -650,6 +722,10 @@ async function refreshPage() {
   }
 }
 async function act(kind: string, id = "", extra: Record<string, unknown> = {}) {
+  if (navigator.onLine === false) {
+    error("You're offline. This new move was not sent; reconnect to play.");
+    return;
+  }
   if (busy) return;
   if (sessionStorage.getItem("mto_pending")) {
     error("Retry your saved move before starting another.");
@@ -675,15 +751,25 @@ async function act(kind: string, id = "", extra: Record<string, unknown> = {}) {
 }
 async function sendAction(payload: unknown) {
   try {
+    const before = player;
+    const reopen = document.querySelector<HTMLDialogElement>("#character")?.open
+      ? activeCharacterTab
+      : null;
     const r = await api("/api/action", payload);
     sessionStorage.removeItem("mto_pending");
     player = r.player;
     offset = Date.parse(r.serverTime) - Date.now();
-    lastResult = r;
+    lastResult = {
+      ...r,
+      energySpent: Math.max(0, (before?.energy || 0) - r.player.energy),
+      promotedTo:
+        before && r.player.rank > before.rank ? r.player.rankName : undefined,
+    };
     if (page === "daily") daily = await api("/api/daily");
     if (["market", "rivals"].includes(page)) await refreshWorld();
     busy = false;
     render();
+    if (reopen) showCharacter(reopen);
   } catch (e) {
     busy = false;
     const status = (e as { status?: number }).status;
@@ -695,6 +781,12 @@ async function sendAction(payload: unknown) {
 app.addEventListener("click", async (e) => {
   const b = (e.target as Element).closest<HTMLElement>("button,a");
   if (!b) return;
+  if (b.dataset.bankAll) {
+    const amount =
+      b.dataset.bankAll === "deposit" ? player!.cash : player!.bank;
+    if (amount > 0) await act(b.dataset.bankAll, "", { amount });
+    return;
+  }
   if (b.dataset.category) {
     openCategory =
       openCategory === b.dataset.category ? null : b.dataset.category;
@@ -820,12 +912,30 @@ app.addEventListener("submit", async (e) => {
     error((err as Error).message);
   }
 });
+app.addEventListener("change", (e) => {
+  const el = e.target as HTMLSelectElement;
+  if (el.hasAttribute("data-squad-position")) {
+    squadPosition = el.value;
+    render();
+  }
+  if (el.hasAttribute("data-squad-sort")) {
+    squadSort = el.value;
+    render();
+  }
+});
 window.addEventListener("hashchange", () => {
   openCategory = null;
   page = location.hash.slice(1) || "office";
   menuOpen = false;
   lastResult = null;
   void refreshPage();
+});
+window.addEventListener("offline", () => {
+  if (player) render();
+});
+window.addEventListener("online", () => {
+  if (player) void refreshPage();
+  else void init();
 });
 function updateTimers() {
   if (!player) return;
@@ -860,10 +970,23 @@ function updateTimers() {
     .forEach((b) => {
       const key = b.dataset.cooldown!,
         s = seconds(key);
-      b.textContent = s ? duration(s) : b.dataset.label!;
       const a = catalog.activities.find((x) => x.id === key);
+      const full =
+        !!a?.asset &&
+        (player!.ownedCount ?? player!.squad.length) >=
+          (catalog.squadCapacity || 30);
+      b.textContent = s
+        ? "Ready in " + duration(s)
+        : full
+          ? "Squad full"
+          : a && energy < a.energy
+            ? "Need " + a.energy + " energy"
+            : a && player!.cash < a.cost
+              ? "Need " + money(a.cost)
+              : b.dataset.label!;
       b.disabled =
         busy ||
+        full ||
         s > 0 ||
         (a
           ? energy < a.energy || player!.cash < a.cost
