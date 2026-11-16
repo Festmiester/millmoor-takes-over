@@ -38,6 +38,7 @@ let googleLinked = false;
 let activeCharacterTab = "character";
 let squadPosition = "all",
   squadSort = "power";
+let businesses: { businesses: { id:string; title:string; description:string; purchasePrice:number; incomePerHour:number; rankRequired:number; ownedId:string|null; level:number|null; accruedAt:string|null; remainderSeconds:number|null }[]; serverTime:string } | null = null;
 let daily: {
   day: string;
   resetsAt: string;
@@ -96,6 +97,7 @@ const groups = [
       ["shop", "Kit & Equipment"],
       ["market", "Transfer Market"],
       ["bank", "Club Bank"],
+      ["businesses", "Club Businesses"],
       ["travel", "Transit Hub"],
     ],
   },
@@ -313,6 +315,8 @@ function content() {
             .join("")}`,
         )
       );
+    case "businesses":
+      return banner("BUILD YOUR EMPIRE","Club Businesses","Own businesses that earn while you are away. Collect up to 12 hours of accumulated income per business.") + section("YOUR BUSINESSES", businesses ? businesses.businesses.map(b => { const owned = !!b.ownedId; const elapsed = owned && b.accruedAt ? Math.max(0,Math.floor((Date.now()+offset-Date.parse(b.accruedAt))/1000)) : 0; const eligible = Math.min(elapsed,43200)+(b.remainderSeconds||0); const ready = Math.floor(eligible/3600)*b.incomePerHour*(b.level||1); return `<div class="simple-row"><div><strong>${esc(b.title)}</strong><p class="muted small">${esc(b.description)}</p><p class="small">${money(b.incomePerHour)}/hour · ${owned ? `Earned: ${money(ready)} (12h maximum)` : `Purchase: ${money(b.purchasePrice)}`}</p></div>${owned ? actionButton("claimBusiness",b.ownedId!,"Collect "+money(ready),ready===0) : p.rank < b.rankRequired ? lock(b.rankRequired) : actionButton("buyBusiness",b.id,"Buy",p.cash < b.purchasePrice)}</div>`; }).join("") : `<p class="muted padded">Loading businesses…</p>`) + section("HOW IT WORKS",`<p class="padded muted">Businesses accrue income while you are away. Each collection pays whole hours, carries forward partial hours and caps unattended accrual at 12 hours. No purchases use real money.</p>`);
     case "bank":
       return (
         banner(
@@ -719,6 +723,7 @@ async function refreshPage() {
   try {
     await refreshState();
     if (page === "daily") daily = await api("/api/daily");
+    if (page === "businesses") businesses = await api("/api/businesses");
     if (["online", "leaderboard", "market", "rivals"].includes(page))
       await refreshWorld();
     if (page === "history") events = (await api("/api/events")).events;
@@ -772,6 +777,7 @@ async function sendAction(payload: unknown) {
         before && r.player.rank > before.rank ? r.player.rankName : undefined,
     };
     if (page === "daily") daily = await api("/api/daily");
+    if (page === "businesses") businesses = await api("/api/businesses");
     if (["market", "rivals"].includes(page)) await refreshWorld();
     busy = false;
     render();
@@ -1032,6 +1038,7 @@ document.addEventListener("visibilitychange", () => {
 async function loadGame() {
   await refreshState();
   if (page === "daily") daily = await api("/api/daily");
+    if (page === "businesses") businesses = await api("/api/businesses");
   await refreshWorld();
   render();
   const pending = sessionStorage.getItem("mto_pending");
