@@ -63,14 +63,11 @@ test("production deployment has no automatic CI or configured production environ
   assert.match(cfg, /workers_dev = false/);
 });
 
-test("business purchase only accepts known server-defined types", () => {
-  for (const id of ["fake", "", "programme; DROP TABLE", null])
-    assert.throws(() => validateAction({ key, kind: "buyBusiness", input: { id } }));
-  for (const id of ["programme", "merchandise", "academy"])
-    assert.equal(validateAction({ key, kind: "buyBusiness", input: { id } }).input.id, id);
-});
-test("business collection requires a valid owned-business UUID", () => {
-  for (const id of ["", "programme", "bad-id", null])
-    assert.throws(() => validateAction({ key, kind: "claimBusiness", input: { id } }));
-  assert.equal(validateAction({ key, kind: "claimBusiness", input: { id: key } }).input.id, key);
+test("business actions accept only existing catalog identifiers", () => {
+  for (const kind of ["buyBusiness", "collectBusiness", "upgradeBusiness"]) {
+    for (const id of ["fake", "", "programme", "programmes; DROP TABLE", null])
+      assert.throws(() => validateAction({ key, kind, input: { id } }));
+    for (const id of ["programmes", "merchandise", "academy"])
+      assert.equal(validateAction({ key, kind, input: { id } }).input.id, id);
+  }
 });
