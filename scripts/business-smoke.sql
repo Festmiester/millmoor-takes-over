@@ -37,6 +37,14 @@ BEGIN
   receipt:=mto_business_action(pid,gen_random_uuid(),'collectBusiness','programmes');
   IF (receipt->>'cashDelta')::int<>192 THEN RAISE EXCEPTION '8-hour cap failed'; END IF;
 
+  -- Upgrade settles earnings at the previous rate, then charges the upgrade.
+  UPDATE mto_businesses SET collected_at=now()-interval '20 minutes'
+  WHERE player_id=pid AND business_id='programmes';
+  receipt:=mto_business_action(pid,gen_random_uuid(),'upgradeBusiness','programmes');
+  IF (receipt->>'cashDelta')::int<>-352 THEN RAISE EXCEPTION 'Upgrade settlement failed'; END IF;
+  IF (SELECT level FROM mto_businesses WHERE player_id=pid AND business_id='programmes')<>2
+  THEN RAISE EXCEPTION 'Upgrade level failed'; END IF;
+
   state:=mto_business_status(pid);
   IF (state->>'tickSeconds')::int<>600 OR (state->>'capTicks')::int<>48
   THEN RAISE EXCEPTION 'Unexpected economy cycle settings'; END IF;
@@ -51,6 +59,6 @@ BEGIN
     IF SQLERRM='Cross-account collection unexpectedly succeeded' THEN RAISE; END IF;
   END;
 
-  RAISE NOTICE 'PASS: purchase, replay, 30-minute income, collection replay, 8-hour cap, catalog, account isolation';
+  RAISE NOTICE 'PASS: purchase, replay, 30-minute income, collection replay, 8-hour cap, upgrade settlement, catalog, account isolation';
 END $test$;
 ROLLBACK;
