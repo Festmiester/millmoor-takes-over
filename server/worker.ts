@@ -1,12 +1,18 @@
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 import { createRemoteJWKSet, jwtVerify } from "jose";
-import { GameError, text, validateAction } from "./validation";
+import {
+  GameError,
+  text,
+  validateAction,
+  verifyGoogleAccess,
+} from "./validation";
 interface Env {
   DATABASE_URL: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   ALLOW_TEST_ACCOUNTS?: string;
   ENVIRONMENT?: string;
+  ALLOWED_GOOGLE_EMAILS?: string;
   ASSETS: Fetcher;
 }
 const jwks = createRemoteJWKSet(
@@ -162,7 +168,8 @@ async function handle(r: Request, env: Env) {
       client_id: env.GOOGLE_CLIENT_ID,
       redirect_uri: url.origin + "/auth/callback",
       response_type: "code",
-      scope: "openid profile",
+      scope: "openid profile email",
+      prompt: "select_account",
       state,
       nonce,
       code_challenge: challenge,
@@ -179,6 +186,19 @@ async function handle(r: Request, env: Env) {
     return response;
   }
   if (path === "/auth/callback" && r.method === "GET") {
+    if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET)
+      throw new GameError("Google sign-in has not been configured", 503);
+    if (url.searchParams.has("error")) {
+      const response = new Response(null, {
+        status: 302,
+        headers: {
+          Location: "/?signin=cancelled",
+          "Cache-Control": "no-store",
+        },
+      });
+      response.headers.append("Set-Cookie", cookie("mto_oauth", "", r, 0));
+      return response;
+    }
     const [state, nonce, verifier] = (cookies(r).mto_oauth || "").split(".");
     if (
       !state ||
@@ -207,6 +227,10 @@ async function handle(r: Request, env: Env) {
     });
     if (payload.nonce !== nonce || !payload.sub)
       throw new GameError("Invalid sign-in response", 401);
+    verifyGoogleAccess(
+      { email: payload.email, email_verified: payload.email_verified },
+      env.ALLOWED_GOOGLE_EMAILS,
+    );
     const identity = "google:" + payload.sub;
     let rows = await sql`SELECT id FROM mto_players WHERE identity=${identity}`;
     if (!rows.length) {
@@ -239,9 +263,10 @@ async function handle(r: Request, env: Env) {
   }
   if (path === "/api/state" && r.method === "GET") {
     const rows =
-      await sql`SELECT mto_public(mto_refresh(${pid}::uuid)) AS player`;
+      await sql`SELECT mto_public(mto_refresh(${pid}::uuid)) AS player, identity LIKE 'google:%' AS "googleLinked" FROM mto_players WHERE id=${pid}::uuid`;
     return json({
       player: rows[0].player,
+      googleLinked: rows[0].googleLinked,
       serverTime: new Date().toISOString(),
     });
   }

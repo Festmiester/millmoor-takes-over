@@ -18,6 +18,8 @@ let config = { google: false, testAccounts: false, environment: "test" },
   lastResult: { success: boolean; message: string; cashDelta: number } | null =
     null;
 let page = location.hash.slice(1) || "office";
+let openCategory: string | null = null;
+let googleLinked = false;
 const esc = (v: unknown) =>
   String(v ?? "").replace(
     /[&<>"']/g,
@@ -138,6 +140,20 @@ function navigation() {
     )
     .join("");
 }
+function mobileNavigation() {
+  const active = groups.find((g) => g.links.some(([id]) => id === page))?.name;
+  return `<nav class="mobile-categories" aria-label="Game categories">${groups.map((g) => `<button data-category="${g.name}" aria-expanded="${openCategory === g.name}" class="${(openCategory || active) === g.name ? "selected" : ""}">${g.name}</button>`).join("")}</nav>${
+    openCategory
+      ? `<section class="mobile-submenu panel" aria-label="${esc(openCategory)} menu"><div class="panel-title"><button data-category-back>← Back to game</button><h2>${esc(openCategory)}</h2></div><div class="submenu-links">${groups
+          .find((g) => g.name === openCategory)!
+          .links.map(
+            ([id, label]) =>
+              `<a href="#${id}" class="${id === page ? "selected" : ""}">${esc(label)}</a>`,
+          )
+          .join("")}</div></section>`
+      : ""
+  }`;
+}
 function notices() {
   const pending = sessionStorage.getItem("mto_pending");
   if (pending && !busy)
@@ -167,11 +183,25 @@ function render() {
   }
   app.innerHTML =
     header() +
+    mobileNavigation() +
     `<div class="world-strip"><span><i class="live-dot"></i> SOUTH YORKSHIRE</span><span class="test-label">INDEPENDENT TEST WORLD</span><span data-clock>${new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" })} UK</span></div><div class="game-layout"><aside class="sidebar ${menuOpen ? "is-open" : ""}">${navigation()}<button class="logout" data-logout>Sign out</button><p class="sidebar-footer">YOUR CLUB. YOUR EMPIRE.<br>Est. in South Yorkshire</p></aside><main id="content" tabindex="-1"><div class="breadcrumb">Millmoor Takes Over <span>/</span> ${esc(groups.flatMap((g) => g.links).find(([id]) => id === page)?.[1] || "Club Office")}</div>${notices()}${content()}</main>${rail()}</div><dialog id="character" aria-label="Your character"></dialog><div class="toast" role="alert" hidden></div>`;
+  if (config.google && !googleLinked) {
+    document
+      .querySelector("#content")
+      ?.insertAdjacentHTML(
+        "afterbegin",
+        '<div class="account-notice"><span>Keep this club on every device.</span><a href="/auth/google">Connect Google →</a></div>',
+      );
+  }
   updateTimers();
 }
 function renderLogin() {
   app.innerHTML = `<main class="entry"><a class="entry-brand" href="#office"><img src="/crest.svg" alt="Millmoor Takes Over"></a><span class="eyebrow">AN INDEPENDENT FOOTBALL WORLD</span><h1>Small beginnings.<br><em>Big ambitions.</em></h1><p>Start on the local touchline. Build a football empire.<br>Every manager in this world is making their own way.</p><div class="entry-form panel"><div class="panel-title"><h2>OPEN YOUR CLUB</h2><span>Test world</span></div><div class="entry-body">${config.google ? '<a class="google-button" href="/auth/google">Continue with Google →</a>' : '<p class="muted">Google sign-in is being connected.</p>'}${config.testAccounts ? `<form id="signup"><label>Manager name<input name="name" minlength="2" maxlength="24" placeholder="Your manager name" required autocomplete="nickname"></label><label>Club name<input name="club" minlength="2" maxlength="32" placeholder="Your club name" required></label><button class="action full" type="submit">Enter the test world →</button><p class="small muted">Test access lasts seven days in this browser. Signing out ends access. Link Google when available to keep your club across devices.</p></form>` : "<p>Club registration opens when sign-in is configured.</p>"}<p id="login-error" role="alert"></p></div></div><footer>Persistent multiplayer · Original football content · No real-money purchases</footer></main>`;
+  if (new URLSearchParams(location.search).get("signin") === "cancelled") {
+    document.querySelector("#login-error")!.textContent =
+      "Google sign-in was cancelled. Your club has not changed.";
+    history.replaceState(null, "", location.pathname + location.hash);
+  }
 }
 function content() {
   const p = player!;
@@ -458,15 +488,94 @@ function managerRows(challenge = false, online = false) {
     ? `<div class="table-wrap"><table><thead><tr><th>#</th><th>Manager / Club</th><th>Rank</th><th>${challenge ? "Power" : "Region"}</th><th>${challenge ? "Challenge" : "Wealth"}</th></tr></thead><tbody>${rows.map((m, i) => `<tr class="${m.id === p.id ? "your-row" : ""}"><td>${i + 1}</td><td><span class="${m.online ? "live-dot" : "offline-dot"}"></span><strong>${esc(m.name)}</strong><small>${esc(m.club)}${m.id === p.id ? " · You" : ""}</small></td><td>${esc(m.rankName)}</td><td>${challenge ? m.power : esc(m.region)}</td><td>${challenge ? (p.rank < 2 ? lock(2) : m.rank < 2 ? '<span class="lock">Protected</span>' : actionButton("challenge", m.id, "Play friendly", !!seconds("challenge") || p.energy < 15, "challenge")) : money(m.wealth)}</td></tr>`).join("")}</tbody></table></div>`
     : '<p class="empty">No other managers here yet. Invite someone to the test world and build your rivalry.</p>';
 }
-function showCharacter() {
+function showCharacter(tab = "character") {
   const p = player!,
     d = document.querySelector<HTMLDialogElement>("#character")!;
-  d.innerHTML = `<div class="panel-title"><h2>YOUR CHARACTER</h2><button data-close aria-label="Close character">×</button></div><div class="character-tabs"><a href="#profile" data-close>Profile</a><a href="#shop" data-close>Equipment</a><a href="#squad" data-close>Players</a><a href="#bank" data-close>Bank</a></div><div class="character-layout"><div class="character-portrait"><div class="portrait-head"></div><div class="portrait-body"></div><strong>${esc(p.name)}</strong><span>${esc(p.rankName)}</span></div><div class="character-facts"><h3>${esc(p.club)}</h3><dl class="facts"><div><dt>Cash</dt><dd>${money(p.cash)}</dd></div><div><dt>Savings</dt><dd>${money(p.bank)}</dd></div><div><dt>Power</dt><dd>${p.power}</dd></div>${Object.entries(
+  const tabs = [
+    ["character", "Character"],
+    ["items", "Items"],
+    ["players", "Players"],
+    ["skills", "Skills"],
+    ["bank", "Bank"],
+    ["wallet", "Wallet"],
+    ["perks", "Perks"],
+  ];
+  let panel = `<div class="character-layout"><div class="character-portrait"><div class="portrait-head"></div><div class="portrait-body"></div><strong>${esc(p.name)}</strong><span>${esc(p.rankName)}</span></div><div class="character-facts"><h3>${esc(p.club)}</h3><dl class="facts"><div><dt>Cash</dt><dd>${money(p.cash)}</dd></div><div><dt>Savings</dt><dd>${money(p.bank)}</dd></div><div><dt>Power</dt><dd>${p.power}</dd></div>${Object.entries(
     p.attributes,
   )
     .map(([k, v]) => `<div><dt class="capitalize">${k}</dt><dd>${v}</dd></div>`)
-    .join("")}</dl></div></div>${inventory()}`;
-  d.showModal();
+    .join(
+      "",
+    )}</dl><p class="small muted">${googleLinked ? "Google connected · Your club follows your account." : "Browser test account · Keep this session to retain access."}</p>${config.google && !googleLinked ? '<a class="google-button" href="/auth/google">Connect this club to Google →</a>' : ""}</div></div>`;
+  if (tab === "items")
+    panel =
+      inventory() +
+      '<a class="text-button full" href="#shop" data-close>Visit Kit & Equipment →</a>';
+  if (tab === "players")
+    panel = section(
+      "YOUR PLAYERS",
+      p.squad.length
+        ? p.squad
+            .map(
+              (a) =>
+                `<div class="simple-row"><div><strong>${esc(a.name)}</strong><p class="small muted">${esc(a.position)} · ${esc(a.rarity)} · ${a.power} power</p></div><strong>${money(a.value)}</strong></div>`,
+            )
+            .join("")
+        : '<p class="empty">Your scouted and recruited players will appear here.</p>',
+    );
+  if (tab === "skills")
+    panel =
+      section(
+        "TRAINING ATTRIBUTES",
+        Object.entries(p.attributes)
+          .map(
+            ([k, v]) =>
+              `<div class="simple-row"><span class="capitalize">${esc(k)}</span><strong>${v}</strong></div>`,
+          )
+          .join(""),
+      ) +
+      section(
+        "ACTIVITY PROFICIENCY",
+        Object.entries(p.mastery)
+          .map(
+            ([id, v]) =>
+              `<div class="simple-row"><span>${esc(catalog.activities.find((a) => a.id === id)?.title || id)}</span><strong>+${Number(v).toFixed(1)} chance points</strong></div>`,
+          )
+          .join("") ||
+          '<p class="empty">Complete activities to build proficiency.</p>',
+      );
+  if (tab === "bank")
+    panel = section(
+      "CLUB BANK",
+      `<div class="simple-row"><span>On hand</span><strong>${money(p.cash)}</strong></div><div class="simple-row"><span>In the bank</span><strong>${money(p.bank)}</strong></div><form id="bank" class="compact-form"><label>Amount (£)<input name="amount" type="number" min="1" max="1000000000" step="1" required></label><div class="button-row"><button class="action" value="deposit">Deposit</button><button class="action" value="withdraw">Withdraw</button></div></form>`,
+    );
+  if (tab === "wallet")
+    panel = section(
+      "RECENT TRANSACTIONS",
+      events.length
+        ? events
+            .map(
+              (e) =>
+                `<div class="simple-row"><div><strong>${esc(e.message)}</strong><p class="small muted">${esc(new Date(e.createdAt).toLocaleString("en-GB"))}</p></div><strong>${e.cashDelta > 0 ? "+" : ""}${money(e.cashDelta)}</strong></div>`,
+            )
+            .join("")
+        : '<p class="empty">No activity recorded yet.</p>',
+    );
+  if (tab === "perks")
+    panel = section(
+      "ACTIVE CLUB BENEFITS",
+      `<div class="simple-row"><span>Facility level</span><strong>${p.facility}</strong></div><div class="simple-row"><span>Facility activity chance bonus</span><strong>+${Math.min(6, p.facility)} points</strong></div>${p.inventory
+        .filter((i) => i.equipped)
+        .map(
+          (i) =>
+            `<div class="simple-row"><span>${esc(i.title)}</span><strong>+${i.power} power</strong></div>`,
+        )
+        .join(
+          "",
+        )}<p class="empty">Equipment contributes while equipped. Activity proficiency is listed under Skills.</p>`,
+    );
+  d.innerHTML = `<div class="panel-title"><h2>MANAGER FILE</h2><button data-close aria-label="Close character">×</button></div><div class="character-tabs" aria-label="Manager file sections">${tabs.map(([id, label]) => `<button data-character-tab="${id}" aria-pressed="${tab === id}">${label}</button>`).join("")}</div><div class="character-panel">${panel}</div>`;
+  if (!d.open) d.showModal();
 }
 function error(message: string) {
   const t = document.querySelector<HTMLElement>(".toast");
@@ -483,8 +592,13 @@ async function refreshWorld() {
   world = await api<World>("/api/world");
 }
 async function refreshState() {
-  const b = await api<{ player: Player; serverTime: string }>("/api/state");
+  const b = await api<{
+    player: Player;
+    serverTime: string;
+    googleLinked: boolean;
+  }>("/api/state");
   player = b.player;
+  googleLinked = b.googleLinked;
   offset = Date.parse(b.serverTime) - Date.now();
 }
 async function refreshPage() {
@@ -544,6 +658,24 @@ async function sendAction(payload: unknown) {
 app.addEventListener("click", async (e) => {
   const b = (e.target as Element).closest<HTMLElement>("button,a");
   if (!b) return;
+  if (b.dataset.category) {
+    openCategory =
+      openCategory === b.dataset.category ? null : b.dataset.category;
+    menuOpen = false;
+    render();
+    return;
+  }
+  if (b.hasAttribute("data-category-back")) {
+    openCategory = null;
+    render();
+    return;
+  }
+  if (b.dataset.characterTab) {
+    if (b.dataset.characterTab === "wallet")
+      events = (await api("/api/events")).events;
+    showCharacter(b.dataset.characterTab);
+    return;
+  }
   if (b.hasAttribute("data-retry")) {
     const pending = sessionStorage.getItem("mto_pending");
     if (pending) {
@@ -652,6 +784,7 @@ app.addEventListener("submit", async (e) => {
   }
 });
 window.addEventListener("hashchange", () => {
+  openCategory = null;
   page = location.hash.slice(1) || "office";
   menuOpen = false;
   lastResult = null;

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-16 — Navigation, manager file and Google readiness
+- Added Lovable-inspired mobile category buttons with two-column destination menus.
+- Added Character, Items, Players, Skills, Bank, Wallet and Perks panels inside the Manager File.
+- Added verified-email Google allowlisting, cancellation handling and account-link status.
+- Passed 7 unit, 12 API and 28 client DOM checks. Real Google credentials remain pending.
+
 ## 2026-11-16 — First public test deployment
 - Published independent test Worker and HTTPS game URL.
 - Confirmed live test manager registration and profile rendering.

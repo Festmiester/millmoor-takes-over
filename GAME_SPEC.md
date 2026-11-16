@@ -1,5 +1,7 @@
 # Millmoor Takes Over — game specification
 
+Follow-up UI: compact mobile categories and seven real Manager File panels. Private Google testing uses verified-email allowlisting; credentials and live consent remain pending. See GOOGLE_AUTH_SETUP.md.
+
 Last updated: 16 November 2026. Independent browser game, version 0.1.0.
 
 ## Scope and separation

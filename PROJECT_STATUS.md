@@ -4,6 +4,13 @@ Updated 16 November 2026. Owner: Kurt Knowles. Project: **Millmoor Takes Over**,
 
 ## Current position
 
+### Follow-up batch — 16 November 2026
+
+Deployed this batch to the existing test URL, deployment `809f0ea3503940ae8fa4d6ebfe3b540f`. Live browser verified saved QA cash remained £295, Manager File opens and Skills displays saved coaching proficiency. Existing secret bindings preserved. Google credentials remain missing.
+
+Reviewed Lovable AppShell, CharacterModal and nav-config at commit `feb6b086253a0dfce3b63fdf64c571452e9403bd` read-only. Added compact mobile category buttons/two-column submenus and seven in-place Manager File panels using actual saved state. Google now requests verified email for an optional owner allowlist, handles cancellation/configuration errors and exposes existing-club linking. 7 unit, 12 real-database API and 28 real-backend client DOM checks passed. Native modal rendering must still be checked on deployment.
+Google credentials are still absent. TinyFish could not inspect Google Console because its wallet is empty; no payment made. See GOOGLE_AUTH_SETUP.md for exact setup. Do not claim Google login or owner-only access is live yet. Keep current browser test access until Kurt has linked his club.
+
 ### Live test checkpoint — 16 November 2026, 15:29 UTC
 
 Test game is now deployed: https://millmoor-takes-over-test.kurttev327.workers.dev/
@@ -13,9 +20,9 @@ GitHub repository is `Festmiester/millmoor-takes-over`; owner created it PUBLIC 
 Build and six unit tests rerun successfully. API plugin deployment packages static client inside the Worker via `scripts/package-plugin-deploy.mjs`; normal Wrangler asset deployment remains supported. No paid plan or production deployment.
 The older paragraphs below describe the pre-deployment checkpoint and are superseded by this dated live checkpoint where they conflict.
 
-The independent source, persistent backend and first playable core are implemented. **There is no live Cloudflare test URL yet. There is no new GitHub remote yet. Production has not been deployed or approved.** This is not full feature parity with the old Floot game.
+The independent source, persistent backend and first playable core are implemented and the Cloudflare test game is live. Production has not been deployed or approved. This is not full feature parity with the old Floot game.
 
-The next step is access, not another rewrite: securely authenticate Cloudflare, select the GitHub owner and create the separate private repository, then deploy this existing source to the test Worker, configure Google OAuth and perform live browser QA.
+Next: configure Google OAuth, link Kurt's existing club and disable disposable registration after verifying re-login. Cloudflare plugin and GitHub repository access now work.
 
 ## Completed
 

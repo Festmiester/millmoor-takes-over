@@ -41,9 +41,16 @@ const dom = new JSDOM(
   return worker.fetch(new Request(origin + path, { ...options, headers }), env);
 };
 const source = readFileSync("src/main.ts", "utf8").replace(
-  "import './style.css';",
+  /import ["']\.\/style\.css["'];/,
   "",
 );
+// JSDOM has no native modal implementation; model only the open/close state.
+dom.window.HTMLDialogElement.prototype.showModal = function () {
+  this.open = true;
+};
+dom.window.HTMLDialogElement.prototype.close = function () {
+  this.open = false;
+};
 const js = await transform(source, {
   loader: "ts",
   format: "iife",
@@ -162,33 +169,60 @@ for (const route of [
   dom.window.location.hash = route;
   await waitFor(
     () =>
-      d
-        .querySelector(".breadcrumb")
-        ?.textContent?.includes(
-          (
-            {
-              scouting: "Talent Scouts",
-              recruitment: "Recruitment",
-              squad: "My Squad",
-              training: "Training Centre",
-              club: "Club Development",
-              shop: "Kit & Equipment",
-              travel: "Transit Hub",
-              campaign: "Road to Legend",
-              profile: "My Manager",
-              guide: "Game Guide",
-              history: "Club News",
-              market: "Transfer Market",
-              rivals: "Rival Challenges",
-              leaderboard: "Hall of Fame",
-              online: "Managers Online",
-            } as Record<string, string>
-          )[route],
-        ) === true,
+      d.querySelector(".breadcrumb")?.textContent?.includes(
+        (
+          {
+            scouting: "Talent Scouts",
+            recruitment: "Recruitment",
+            squad: "My Squad",
+            training: "Training Centre",
+            club: "Club Development",
+            shop: "Kit & Equipment",
+            travel: "Transit Hub",
+            campaign: "Road to Legend",
+            profile: "My Manager",
+            guide: "Game Guide",
+            history: "Club News",
+            market: "Transfer Market",
+            rivals: "Rival Challenges",
+            leaderboard: "Hall of Fame",
+            online: "Managers Online",
+          } as Record<string, string>
+        )[route],
+      ) === true,
   );
   check(`${route} route renders a functional destination`, () =>
     assert.ok(d.querySelector("main h1")),
   );
+}
+check("mobile categories open a compact destination menu", () => {
+  d.querySelector<HTMLButtonElement>('[data-category="Campaign"]')!.click();
+  assert.equal(d.querySelectorAll(".submenu-links a").length, 7);
+  d.querySelector<HTMLButtonElement>("[data-category-back]")!.click();
+  assert.equal(d.querySelector(".mobile-submenu"), null);
+});
+d.querySelector<HTMLButtonElement>("[data-character]")!.click();
+for (const tab of [
+  "items",
+  "players",
+  "skills",
+  "bank",
+  "perks",
+  "character",
+]) {
+  d.querySelector<HTMLButtonElement>(`[data-character-tab="${tab}"]`)!.click();
+  check(`manager ${tab} tab stays inside the open file`, () => {
+    assert.equal(d.querySelector<HTMLDialogElement>("#character")!.open, true);
+    assert.ok(
+      d.querySelector(".character-panel")!.textContent!.trim().length > 0,
+    );
+    assert.equal(
+      d
+        .querySelector(`[data-character-tab="${tab}"]`)!
+        .getAttribute("aria-pressed"),
+      "true",
+    );
+  });
 }
 console.log(
   `${passed} client DOM checks passed against real backend. Native visual review is separate.`,

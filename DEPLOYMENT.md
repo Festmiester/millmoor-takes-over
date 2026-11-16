@@ -1,5 +1,9 @@
 # Deployment and operations
 
+Latest test deployment: `809f0ea3503940ae8fa4d6ebfe3b540f` (16 Nov 2026). Manager File and Google-readiness batch. Live browser verified saved progress and character/skills panels. Google is still not configured.
+
+Current Google blocker: credentials absent; TinyFish wallet empty. No payment authorised or made. GOOGLE_AUTH_SETUP.md contains exact settings. Next API deployment must preserve existing secret bindings (`keep_bindings: ["secret_text"]`) so user-entered Google credentials cannot be wiped. Keep disposable signup available until the owner successfully links the existing club and re-login is verified.
+
 ## Live test deployment — 16 November 2026
 
 URL: https://millmoor-takes-over-test.kurttev327.workers.dev/

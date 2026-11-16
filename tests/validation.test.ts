@@ -1,8 +1,29 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validateAction, text, uuid } from "../server/validation";
+import {
+  validateAction,
+  text,
+  uuid,
+  verifyGoogleAccess,
+} from "../server/validation";
 import { readFileSync } from "node:fs";
 const key = "85930811-d074-4d6a-9913-c8a627808b54";
+test("private Google access requires an explicitly allowed verified email", () => {
+  assert.doesNotThrow(() =>
+    verifyGoogleAccess(
+      { email: "Owner@Example.com", email_verified: true },
+      " owner@example.com ",
+    ),
+  );
+  for (const claims of [
+    { email: "other@example.com", email_verified: true },
+    { email: "owner@example.com", email_verified: false },
+    { email_verified: true },
+    { email: "owner@example.com", email_verified: "true" },
+  ])
+    assert.throws(() => verifyGoogleAccess(claims, "owner@example.com"));
+  assert.doesNotThrow(() => verifyGoogleAccess({}, undefined));
+});
 test("money only accepts positive bounded integer amounts", () => {
   for (const amount of [-1, 0, 1.5, 1e10, "10", null, {}, NaN])
     assert.throws(() =>

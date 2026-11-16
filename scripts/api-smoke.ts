@@ -138,8 +138,47 @@ await check("session logout invalidates server access", async () => {
 });
 await check("OAuth fails closed until credentials exist", async () => {
   assert.equal((await call("/auth/google")).status, 503);
-  assert.equal((await call("/auth/callback?state=fake&code=fake")).status, 401);
+  assert.equal((await call("/auth/callback?state=fake&code=fake")).status, 503);
 });
+await check(
+  "OAuth requests email, uses PKCE and rejects missing callback state",
+  async () => {
+    const configured = {
+      ...env,
+      GOOGLE_CLIENT_ID: "test.apps.googleusercontent.com",
+      GOOGLE_CLIENT_SECRET: "test-secret",
+    };
+    const r = await worker.fetch(
+      new Request(origin + "/auth/google"),
+      configured,
+    );
+    assert.equal(r.status, 302);
+    const target = new URL(r.headers.get("Location")!);
+    assert.equal(target.origin, "https://accounts.google.com");
+    assert.equal(target.searchParams.get("scope"), "openid profile email");
+    assert.equal(target.searchParams.get("code_challenge_method"), "S256");
+    assert.equal(
+      target.searchParams.get("redirect_uri"),
+      origin + "/auth/callback",
+    );
+    assert.match(r.headers.get("Set-Cookie")!, /HttpOnly/);
+    assert.equal(
+      (
+        await worker.fetch(
+          new Request(origin + "/auth/callback?state=fake&code=fake"),
+          configured,
+        )
+      ).status,
+      401,
+    );
+    const cancelled = await worker.fetch(
+      new Request(origin + "/auth/callback?error=access_denied"),
+      configured,
+    );
+    assert.equal(cancelled.status, 302);
+    assert.equal(cancelled.headers.get("Location"), "/?signin=cancelled");
+  },
+);
 await check("production rejects disposable test accounts", async () => {
   const r = await worker.fetch(
     new Request(origin + "/api/test-account", {

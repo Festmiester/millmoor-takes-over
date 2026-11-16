@@ -1764,6 +1764,114 @@ dialog .panel {
   font-size: 8px;
   margin-top: 5px;
 }
+.mobile-categories,
+.mobile-submenu {
+  display: none;
+}
+.account-notice {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid #735c39;
+  background: #262015;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+.account-notice a {
+  color: #e4c28b;
+}
+.character-tabs {
+  display: flex;
+  flex-wrap: wrap;
+}
+.character-tabs button {
+  flex: 1;
+  min-width: 65px;
+  padding: 10px 7px;
+  border: 1px solid #4a4038;
+  background: #201c19;
+  color: #c2b9ac;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+}
+.character-tabs button[aria-pressed="true"] {
+  background: #4c3026;
+  border-color: #bd9461;
+  color: #f5d7a7;
+}
+.character-panel {
+  max-height: 68vh;
+  overflow: auto;
+}
+@media (max-width: 760px) {
+  .mobile-categories {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    border-bottom: 1px solid #554437;
+    background: #171411;
+  }
+  .mobile-categories button {
+    min-height: 38px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: #b5a99a;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .mobile-categories button.selected {
+    color: #edc78c;
+    border-bottom-color: #b88d52;
+    background: #2c211a;
+  }
+  .mobile-submenu {
+    display: block;
+    margin: 8px;
+  }
+  .mobile-submenu .panel-title button {
+    background: none;
+    border: 0;
+    color: #dcc29d;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .submenu-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 6px;
+  }
+  .submenu-links a {
+    display: block;
+    color: #c9c0b5;
+    padding: 11px 8px;
+    border: 1px solid #40362c;
+    background: #211c17;
+    font-size: 12px;
+    text-decoration: none;
+  }
+  .submenu-links a.selected {
+    background: #4b3027;
+    color: #f0d5af;
+    border-color: #986d47;
+  }
+  .character-tabs {
+    padding: 6px;
+    gap: 3px;
+  }
+  .character-tabs button {
+    flex: 1 0 20%;
+    min-width: 0;
+    padding: 10px 3px;
+    font-size: 10px;
+  }
+}
 @media (max-width: 760px) {
   .energy-recovery {
     font-size: 6px;

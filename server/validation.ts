@@ -6,6 +6,25 @@ export class GameError extends Error {
     super(message);
   }
 }
+export function verifyGoogleAccess(
+  claims: { email?: unknown; email_verified?: unknown },
+  allowlist?: string,
+) {
+  const allowed = (allowlist || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  if (!allowed.length) return;
+  if (
+    claims.email_verified !== true ||
+    typeof claims.email !== "string" ||
+    !allowed.includes(claims.email.toLowerCase())
+  )
+    throw new GameError(
+      "This test world is currently restricted to its owner",
+      403,
+    );
+}
 export const uuid = (v: unknown): v is string =>
   typeof v === "string" &&
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
