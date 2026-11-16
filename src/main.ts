@@ -283,6 +283,10 @@ function content() {
         ) +
         `<div class="ground-banner"><div><span class="eyebrow">${esc(p.club)}</span><h2>Every empire starts<br>with a local following.</h2><span class="ground-caption">${esc(p.region)} · Grassroots to the world</span></div><div class="pitch-art" aria-hidden="true"><div class="centre-circle"></div><div class="goal goal-left"></div><div class="goal goal-right"></div></div></div>` +
         section(
+          "YOUR EMPIRE",
+          '<div class="simple-row"><div><strong>Club Businesses</strong><p class="small muted">Open a business, upgrade it and collect your offline income.</p></div><a href="#businesses">Manage businesses →</a></div>',
+        ) +
+        section(
           "YOUR APPROACH",
           `<div class="approach-row">${["safe", "steady", "bold"].map((a) => `<button data-approach="${a}" class="approach ${approach === a ? "active" : ""}" aria-pressed="${approach === a}"><strong>${a[0].toUpperCase() + a.slice(1)}</strong><small>${a === "safe" ? "Better odds · lower return" : a === "bold" ? "More risk · higher return" : "Balanced risk & return"}</small></button>`).join("")}</div>`,
         ) +
