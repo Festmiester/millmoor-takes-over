@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-16 — illustrated manager and visual refresh
+- Added an original illustrated manager to header, profile and Manager File.
+- Applied compact warm black-and-gold styling and self-hosted Oswald/PT Sans fonts.
+- Added byte-safe image/font packaging and four asset smoke checks. No gameplay or schema changes.
+
 ## 2026-11-16 — Lovable review, scouting depth and usability
 - Adapted the strongest verified Lovable UI details; full comparison in LOVABLE_REVIEW.md.
 - Added net/expected cash quotes, clear blocked action labels, richer outcome feedback and signing cards.

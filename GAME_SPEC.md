@@ -1,5 +1,9 @@
 # Millmoor Takes Over — game specification
 
+## Visual identity
+
+Warm black/brown surfaces and antique-gold panels/actions, condensed Oswald headings and PT Sans body text. Compact responsive shell. An original illustrated football gaffer is the default character portrait across the header, profile and Manager File; it is not a user photograph or a change to account identity.
+
 ## Scouting and usability follow-up
 
 Five scouting contacts unlock at ranks 1/2/4/7/10, with costs £25/90/300/1000/3500 and existing per-action energy/cooldowns. New acquisitions get age 17–33, power tier×5 through tier×5+9, and weighted rarity from mto_scout_profile (normalise returned weights for probabilities). Base value is max(cost×2+40, power×12), multiplied Local×1, Promising×2, Elite×4, Legendary×8. Existing players retain original values and metadata. These are independent-game test balance choices.

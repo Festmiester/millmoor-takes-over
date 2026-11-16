@@ -41,7 +41,7 @@ const dom = new JSDOM(
   return worker.fetch(new Request(origin + path, { ...options, headers }), env);
 };
 const source = readFileSync("src/main.ts", "utf8").replace(
-  /import ["']\.\/style\.css["'];/,
+  /import ["']\.\/(?:style|visual-refresh)\.css["'];/g,
   "",
 );
 // JSDOM has no native modal implementation; model only the open/close state.
@@ -172,24 +172,26 @@ await waitFor(() => d.querySelector(".stat-grid strong")?.textContent === "£0")
 check("deposit all banks the entire real balance", () =>
   assert.equal(d.querySelector(".stat-grid strong")!.textContent, "£0"),
 );
-for (const route of (process.argv.includes('--quick') ? [] : [
-  "scouting",
-  "daily",
-  "recruitment",
-  "squad",
-  "training",
-  "club",
-  "shop",
-  "travel",
-  "campaign",
-  "profile",
-  "guide",
-  "history",
-  "market",
-  "rivals",
-  "leaderboard",
-  "online",
-])) {
+for (const route of process.argv.includes("--quick")
+  ? []
+  : [
+      "scouting",
+      "daily",
+      "recruitment",
+      "squad",
+      "training",
+      "club",
+      "shop",
+      "travel",
+      "campaign",
+      "profile",
+      "guide",
+      "history",
+      "market",
+      "rivals",
+      "leaderboard",
+      "online",
+    ]) {
   dom.window.location.hash = route;
   await waitFor(
     () =>

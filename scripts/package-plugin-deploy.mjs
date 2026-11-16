@@ -9,6 +9,9 @@ const mime = {
   ".css": "text/css; charset=utf-8",
   ".svg": "image/svg+xml",
   ".webmanifest": "application/manifest+json",
+  ".webp": "image/webp",
+  ".ttf": "font/ttf",
+  ".woff2": "font/woff2",
 };
 function walk(dir, prefix = "") {
   for (const file of readdirSync(dir)) {
@@ -17,7 +20,11 @@ function walk(dir, prefix = "") {
     if (statSync(full).isDirectory()) walk(full, path);
     else if (file !== "_headers")
       assets[path] = {
-        body: readFileSync(full, "utf8"),
+        body: readFileSync(
+          full,
+          /\.(webp|ttf|woff2)$/.test(file) ? "base64" : "utf8",
+        ),
+        binary: /\.(webp|ttf|woff2)$/.test(file),
         type: mime[file.slice(file.lastIndexOf("."))] || "text/plain",
       };
   }
@@ -43,7 +50,8 @@ export default {fetch(request, env, ctx) {return worker.fetch(request, {...env, 
 const p = new URL(r.url).pathname;
 const asset = assets[p === '/' ? '/index.html' : p];
 if (!asset) return new Response('Not found', {status:404});
-return new Response(r.method === 'HEAD' ? null : asset.body, {headers:{...securityHeaders,'Content-Type':asset.type,'Cache-Control':p.startsWith('/assets/')?'public, max-age=31536000, immutable':'no-cache'}});
+const body=asset.binary?Uint8Array.from(atob(asset.body),c=>c.charCodeAt(0)):asset.body;
+return new Response(r.method === 'HEAD' ? null : body, {headers:{...securityHeaders,'Content-Type':asset.type,'Cache-Control':p.startsWith('/assets/')?'public, max-age=31536000, immutable':'no-cache'}});
 }}}, ctx);}};`,
     resolveDir: process.cwd(),
     sourcefile: "plugin-entry.ts",

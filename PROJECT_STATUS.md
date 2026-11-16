@@ -4,6 +4,10 @@ Updated 16 November 2026. Read this file first when continuing.
 
 ## Live game
 
+### Current visual release — illustrated manager
+
+Deployment `2c059f057a664818aa384e63814accf8` supersedes deployment IDs below. Original illustrated manager now appears in the header, profile and Manager File. Warm black-and-gold panels, compact layout and self-hosted Oswald/PT Sans typography follow the inspected Lovable direction. No gameplay, database or authentication changes. Live browser verified the portrait and Manager File using the retained Deployment QA session. Build, 9 unit tests, 16 focused client checks and 4 byte-exact packaged image/font checks passed. Mobile CSS updated; physical Android rendering has not been independently tested. See ASSET_PROVENANCE.md.
+
 ### Latest live batch — scouting and Lovable adaptations
 
 Deployment `cd844ec787db4b22984e9c8252ebdbdc` is live. See LOVABLE_REVIEW.md for the inspected reference and exact adaptations. Added net/expected quotes, action reasons, richer outcomes, equipment slots, bank-all, squad filters/sorting, standalone manifest and offline feedback. Added five real scouting contacts, rarity-sensitive asset values/age and server capacity of 30 including listings. Existing players preserved. Migrations 005–008 applied atomically to the playable world after verification. Live browser confirmed the new office cards and saved cash; live catalog returns five contacts, capacity 30 and five profiles. Manifest serves with correct MIME type. Temporary signup remains off; Google settings preserved.

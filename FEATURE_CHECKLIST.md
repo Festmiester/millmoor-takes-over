@@ -1,5 +1,7 @@
 # Feature checklist — all 48 recovered comparison rows
 
+Visual follow-up complete: illustrated manager in header/profile/Manager File, warm black-and-gold panels, compact layout and locally served Lovable font families. Live Manager File reviewed. Android device review remains outstanding.
+
 Lovable follow-up: outcome net/energy/promotion/signing details, explicit action reasons/timers, equipment slots, bank-all buttons, player filters/rarity badges and app manifest. Five scouting contacts with actual server rarity/power data and 30-player ownership capacity. Existing assets retained. LOVABLE_REVIEW.md maps the reference features to adaptations; inert reference routes and local-only economy are not copied.
 
 Latest: Google configured; owner reported login working but no Google-linked identity found on database check. New temporary registration disabled; preserve existing sessions pending completed linkage. Added server-authoritative Daily Assignments with UTC reset, cash ledger and replay/concurrency protections. See current PROJECT_STATUS.md.

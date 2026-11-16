@@ -1,4 +1,5 @@
 import "./style.css";
+import "./visual-refresh.css";
 import type {
   Player,
   Catalog,
@@ -201,11 +202,11 @@ function banner(eyebrow: string, title: string, sub: string) {
 }
 function header() {
   const p = player!;
-  return `<header class="topbar"><a class="brand" href="#office"><img src="/crest.svg" alt="Millmoor Takes Over crest"><span>MILLMOOR<small>TAKES OVER</small></span></a><button class="manager-chip" data-character aria-label="Open character"><span class="avatar">${esc(p.name.slice(0, 2).toUpperCase())}</span><span><strong>${esc(p.club)}</strong><small>${esc(p.rankName)} · ${esc(p.region)}</small></span></button><div class="header-money"><small>ON HAND</small><strong data-cash>${money(p.cash)}</strong></div><div class="header-energy"><span><small>ENERGY</small><b data-energy>${p.energy} / 100</b></span><progress max="100" value="${p.energy}" aria-label="Energy"></progress><small class="energy-recovery" data-energy-next></small></div><button class="menu-button" data-menu aria-expanded="${menuOpen}">☰ <span>Menu</span></button></header>`;
+  return `<header class="topbar"><a class="brand" href="#office"><img src="/crest.svg" alt="Millmoor Takes Over crest"><span>MILLMOOR<small>TAKES OVER</small></span></a><button class="manager-chip" data-character aria-label="Open character"><img class="avatar character-avatar" src="/manager-portrait.webp" alt="Your manager character"><span><strong>${esc(p.club)}</strong><small>${esc(p.rankName)} · ${esc(p.region)}</small></span></button><div class="header-money"><small>ON HAND</small><strong data-cash>${money(p.cash)}</strong></div><div class="header-energy"><span><small>ENERGY</small><b data-energy>${p.energy} / 100</b></span><progress max="100" value="${p.energy}" aria-label="Energy"></progress><small class="energy-recovery" data-energy-next></small></div><button class="menu-button" data-menu aria-expanded="${menuOpen}">☰ <span>Menu</span></button></header>`;
 }
 function rail() {
   const p = player!;
-  return `<aside class="right-rail">${section("THE MANAGER", `<div class="manager-summary"><div class="manager-avatar">${esc(p.name.slice(0, 2).toUpperCase())}</div><strong>${esc(p.name)}</strong><span>${esc(p.rankName)}</span><small>${esc(p.club)}</small></div><dl class="facts"><div><dt>Cash</dt><dd data-cash>${money(p.cash)}</dd></div><div><dt>In the bank</dt><dd data-bank>${money(p.bank)}</dd></div><div><dt>Club power</dt><dd>${p.power}</dd></div><div><dt>Squad</dt><dd>${p.squad.length} players</dd></div><div><dt>Home</dt><dd>${esc(p.region)}</dd></div></dl><button class="text-button full" data-character>Open character →</button>`)}${section("THE TOUCHLINE", `<div class="rail-note"><span class="live-dot"></span> <strong data-online>${world.counts.online}</strong> managers online<p>Make your name. Build your club. Take over.</p><a href="#online">See who is around →</a></div>`)}${section("NEXT STEPS", `<div class="rail-note"><p>${p.rank === 0 ? "Deliver flyers and run coaching sessions to establish your name." : "Build your contacts, strengthen your squad and keep the business moving."}</p><p>Reputation is earned in the game. Your next promotion arrives when you deserve it.</p><a href="#guide">Read the game guide →</a></div>`)}</aside>`;
+  return `<aside class="right-rail">${section("THE MANAGER", `<div class="manager-summary"><img class="manager-avatar character-avatar" src="/manager-portrait.webp" alt="Your manager character"><strong>${esc(p.name)}</strong><span>${esc(p.rankName)}</span><small>${esc(p.club)}</small></div><dl class="facts"><div><dt>Cash</dt><dd data-cash>${money(p.cash)}</dd></div><div><dt>In the bank</dt><dd data-bank>${money(p.bank)}</dd></div><div><dt>Club power</dt><dd>${p.power}</dd></div><div><dt>Squad</dt><dd>${p.squad.length} players</dd></div><div><dt>Home</dt><dd>${esc(p.region)}</dd></div></dl><button class="text-button full" data-character>Open character →</button>`)}${section("THE TOUCHLINE", `<div class="rail-note"><span class="live-dot"></span> <strong data-online>${world.counts.online}</strong> managers online<p>Make your name. Build your club. Take over.</p><a href="#online">See who is around →</a></div>`)}${section("NEXT STEPS", `<div class="rail-note"><p>${p.rank === 0 ? "Deliver flyers and run coaching sessions to establish your name." : "Build your contacts, strengthen your squad and keep the business moving."}</p><p>Reputation is earned in the game. Your next promotion arrives when you deserve it.</p><a href="#guide">Read the game guide →</a></div>`)}</aside>`;
 }
 function render() {
   if (!player) {
@@ -496,6 +497,7 @@ function content() {
           "My Manager",
           "Your identity in the football world.",
         ) +
+        `<section class="profile-character panel"><img src="/manager-portrait.webp" alt="Your illustrated manager character"><div><span class="eyebrow">THE GAFFER</span><h2>${esc(p.name)}</h2><p>${esc(p.club)}</p><span class="profile-rank">${esc(p.rankName)} · ${esc(p.region)}</span><button class="secondary" data-character>Open Manager File →</button></div></section>` +
         section(
           "MANAGER DETAILS",
           `<form id="profile" class="compact-form"><label>Manager name<input name="name" value="${esc(p.name)}" minlength="2" maxlength="24" required></label><label>Club name<input name="club" value="${esc(p.club)}" minlength="2" maxlength="32" required></label><button class="action">Save details</button></form>`,
@@ -607,7 +609,7 @@ function showCharacter(tab = "character") {
     ["wallet", "Wallet"],
     ["perks", "Perks"],
   ];
-  let panel = `<div class="character-layout"><div class="character-portrait"><div class="portrait-head"></div><div class="portrait-body"></div><strong>${esc(p.name)}</strong><span>${esc(p.rankName)}</span></div><div class="character-facts"><h3>${esc(p.club)}</h3><dl class="facts"><div><dt>Cash</dt><dd>${money(p.cash)}</dd></div><div><dt>Savings</dt><dd>${money(p.bank)}</dd></div><div><dt>Power</dt><dd>${p.power}</dd></div>${Object.entries(
+  let panel = `<div class="character-layout"><div class="character-portrait"><img class="character-art" src="/manager-portrait.webp" alt="Illustrated football manager portrait"><strong>${esc(p.name)}</strong><span>${esc(p.rankName)}</span></div><div class="character-facts"><h3>${esc(p.club)}</h3><dl class="facts"><div><dt>Cash</dt><dd>${money(p.cash)}</dd></div><div><dt>Savings</dt><dd>${money(p.bank)}</dd></div><div><dt>Power</dt><dd>${p.power}</dd></div>${Object.entries(
     p.attributes,
   )
     .map(([k, v]) => `<div><dt class="capitalize">${k}</dt><dd>${v}</dd></div>`)

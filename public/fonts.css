@@ -1,1 +1,22 @@
-/* System fonts only: no third-party font requests or tracking. */
+/* Self-hosted OFL fonts. No third-party requests during play. */
+@font-face {
+  font-family: Oswald;
+  src: url("/oswald-latin.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PT Sans";
+  src: url("/pt-sans-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PT Sans";
+  src: url("/pt-sans-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
