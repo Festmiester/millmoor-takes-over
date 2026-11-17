@@ -38,6 +38,7 @@ let googleLinked = false;
 let activeCharacterTab = "character";
 let squadPosition = "all",
   squadSort = "power";
+let businesses: { businesses: { id:string; title:string; description:string; price:number; rate:number; rankRequired:number; level:number; baseRate:number; upgradeCost:number|null; collectedAt:string|null; available:number }[]; serverTime:string; tickSeconds:number; capTicks:number } | null = null;
 let daily: {
   day: string;
   resetsAt: string;
@@ -96,6 +97,7 @@ const groups = [
       ["shop", "Kit & Equipment"],
       ["market", "Transfer Market"],
       ["bank", "Club Bank"],
+      ["businesses", "Club Businesses"],
       ["travel", "Transit Hub"],
     ],
   },
@@ -281,6 +283,10 @@ function content() {
         ) +
         `<div class="ground-banner"><div><span class="eyebrow">${esc(p.club)}</span><h2>Every empire starts<br>with a local following.</h2><span class="ground-caption">${esc(p.region)} · Grassroots to the world</span></div><div class="pitch-art" aria-hidden="true"><div class="centre-circle"></div><div class="goal goal-left"></div><div class="goal goal-right"></div></div></div>` +
         section(
+          "YOUR EMPIRE",
+          '<div class="simple-row"><div><strong>Club Businesses</strong><p class="small muted">Open a business, upgrade it and collect your offline income.</p></div><a href="#businesses">Manage businesses →</a></div>',
+        ) +
+        section(
           "YOUR APPROACH",
           `<div class="approach-row">${["safe", "steady", "bold"].map((a) => `<button data-approach="${a}" class="approach ${approach === a ? "active" : ""}" aria-pressed="${approach === a}"><strong>${a[0].toUpperCase() + a.slice(1)}</strong><small>${a === "safe" ? "Better odds · lower return" : a === "bold" ? "More risk · higher return" : "Balanced risk & return"}</small></button>`).join("")}</div>`,
         ) +
@@ -313,6 +319,13 @@ function content() {
             .join("")}`,
         )
       );
+    case "businesses":
+      return banner("BUILD YOUR EMPIRE","Club Businesses","Buy businesses, upgrade them and collect income earned while you are away.") + section("YOUR BUSINESSES", businesses ? businesses.businesses.map(b => {
+        const owned=b.level>0;
+        const cycles=owned&&b.collectedAt?Math.min(businesses!.capTicks,Math.max(0,Math.floor((Date.now()+offset-Date.parse(b.collectedAt))/1000/businesses!.tickSeconds))):0;
+        const ready=cycles*b.rate;
+        return `<div class="simple-row"><div><strong>${esc(b.title)}</strong><p class="muted small">${esc(b.description)}</p><p class="small">${owned?`Level ${b.level} · ${money(b.rate)} every 10 min · <span data-business-ready="${esc(b.id)}">Ready: ${money(ready)}</span> · <span data-business-next="${esc(b.id)}">${cycles>=businesses!.capTicks?"Earnings capped":`Next payment in ${Math.max(1,Math.ceil((businesses!.tickSeconds-((Date.now()+offset-Date.parse(b.collectedAt!))/1000)%businesses!.tickSeconds)))}s`}</span>`:`Buy for ${money(b.price)} · Rank ${b.rankRequired}`}</p></div><div class="button-row">${owned ? actionButton("collectBusiness",b.id,"Collect "+money(ready),ready===0).replace("<button ",`<button data-business-collect="${esc(b.id)}" `) + (b.upgradeCost!==null?actionButton("upgradeBusiness",b.id,"Upgrade "+money(b.upgradeCost),p.cash<b.upgradeCost):"") : p.rank<b.rankRequired?lock(b.rankRequired):actionButton("buyBusiness",b.id,"Buy",p.cash<b.price)}</div></div>`;
+      }).join("") : '<p class="padded muted">Loading businesses…</p>') + section("OFFLINE EARNINGS",'<p class="padded muted">Income accumulates in 10-minute cycles while you are offline. Up to eight hours of earnings can be collected per business. Upgrades increase earnings.</p>');
     case "bank":
       return (
         banner(
@@ -719,6 +732,7 @@ async function refreshPage() {
   try {
     await refreshState();
     if (page === "daily") daily = await api("/api/daily");
+    if (page === "businesses") businesses = await api("/api/businesses");
     if (["online", "leaderboard", "market", "rivals"].includes(page))
       await refreshWorld();
     if (page === "history") events = (await api("/api/events")).events;
@@ -772,6 +786,7 @@ async function sendAction(payload: unknown) {
         before && r.player.rank > before.rank ? r.player.rankName : undefined,
     };
     if (page === "daily") daily = await api("/api/daily");
+    if (page === "businesses") businesses = await api("/api/businesses");
     if (["market", "rivals"].includes(page)) await refreshWorld();
     busy = false;
     render();
@@ -970,6 +985,26 @@ function updateTimers() {
       ? `${Math.floor(remaining / 3600)}h ${Math.floor((remaining % 3600) / 60)}m to reset`
       : "New assignments ready — refresh";
   }
+  if (page === "businesses" && businesses) {
+    const now = Date.now() + offset;
+    for (const b of businesses.businesses) {
+      if (!b.level || !b.collectedAt) continue;
+      const elapsed = Math.max(0, Math.floor((now - Date.parse(b.collectedAt)) / 1000));
+      const cycles = Math.min(businesses.capTicks, Math.floor(elapsed / businesses.tickSeconds));
+      const ready = cycles * b.rate;
+      const readyLabel = document.querySelector<HTMLElement>(`[data-business-ready="${b.id}"]`);
+      if (readyLabel) readyLabel.textContent = "Ready: " + money(ready);
+      const nextLabel = document.querySelector<HTMLElement>(`[data-business-next="${b.id}"]`);
+      if (nextLabel) nextLabel.textContent = cycles >= businesses.capTicks
+        ? "Earnings capped — collect now"
+        : "Next payment in " + duration(businesses.tickSeconds - elapsed % businesses.tickSeconds);
+      const collect = document.querySelector<HTMLButtonElement>(`[data-business-collect="${b.id}"]`);
+      if (collect && !busy) {
+        collect.disabled = ready === 0;
+        collect.textContent = "Collect " + money(ready);
+      }
+    }
+  }
   const bar = document.querySelector<HTMLProgressElement>("header progress");
   if (bar) bar.value = energy;
   document
@@ -1020,6 +1055,10 @@ setInterval(async () => {
   if (!player || document.visibilityState !== "visible" || busy) return;
   try {
     await refreshState();
+    if (page === "businesses") {
+      businesses = await api("/api/businesses");
+      render();
+    }
     updateTimers();
     const energy =
       document.querySelector<HTMLProgressElement>("header progress");
@@ -1032,6 +1071,7 @@ document.addEventListener("visibilitychange", () => {
 async function loadGame() {
   await refreshState();
   if (page === "daily") daily = await api("/api/daily");
+    if (page === "businesses") businesses = await api("/api/businesses");
   await refreshWorld();
   render();
   const pending = sessionStorage.getItem("mto_pending");

@@ -62,3 +62,12 @@ test("production deployment has no automatic CI or configured production environ
   assert.doesNotMatch(cfg, /\[env\.production/);
   assert.match(cfg, /workers_dev = false/);
 });
+
+test("business actions accept only existing catalog identifiers", () => {
+  for (const kind of ["buyBusiness", "collectBusiness", "upgradeBusiness"]) {
+    for (const id of ["fake", "", "programme", "programmes; DROP TABLE", null])
+      assert.throws(() => validateAction({ key, kind, input: { id } }));
+    for (const id of ["programmes", "merchandise", "academy"])
+      assert.equal(validateAction({ key, kind, input: { id } }).input.id, id);
+  }
+});

@@ -61,6 +61,9 @@ export function validateAction(data: unknown) {
     "cancelListing",
     "challenge",
     "claimDaily",
+    "buyBusiness",
+    "collectBusiness",
+    "upgradeBusiness",
   ];
   if (!allowed.includes(kind)) throw new GameError("Unknown action");
   const input =
@@ -81,6 +84,10 @@ export function validateAction(data: unknown) {
     !uuid(input.id)
   )
     throw new GameError("Invalid player or listing");
+  if (kind === "buyBusiness" && !["programmes", "merchandise", "academy"].includes(String(input.id)))
+    throw new GameError("Unknown business");
+  if (["collectBusiness","upgradeBusiness"].includes(kind) && !["programmes","merchandise","academy"].includes(String(input.id)))
+    throw new GameError("Unknown business");
   if (kind === "challenge" && !uuid(input.target))
     throw new GameError("Invalid manager");
   if (
