@@ -138,6 +138,37 @@ await check("session logout invalidates server access", async () => {
   assert.equal((await call("/api/state", undefined, sessionB)).status, 401);
 });
 await check(
+  "empire routes enforce authentication, rank and input validation",
+  async () => {
+    assert.equal((await call("/api/empire")).status, 401);
+    const r = await call("/api/empire", undefined, sessionA);
+    assert.equal(r.status, 200);
+    const s = (await r.json()) as any;
+    assert.equal(s.business.businesses.length, 3);
+    assert.equal(s.trade.goods.length, 3);
+    const blocked = await call(
+      "/api/action",
+      {
+        key: crypto.randomUUID(),
+        kind: "buyBusiness",
+        input: { id: "programmes", rate: 99999 },
+      },
+      sessionA,
+    );
+    assert.equal(blocked.status, 409);
+    const bad = await call(
+      "/api/action",
+      {
+        key: crypto.randomUUID(),
+        kind: "buyGoods",
+        input: { id: "scarves", quantity: -1 },
+      },
+      sessionA,
+    );
+    assert.equal(bad.status, 400);
+  },
+);
+await check(
   "closing registration preserves existing clubs until Google linkage",
   async () => {
     const r = await worker.fetch(

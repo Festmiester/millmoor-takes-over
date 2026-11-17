@@ -1,3 +1,4 @@
+import { empireActions } from "./empire-actions";
 export class GameError extends Error {
   constructor(
     message: string,
@@ -46,6 +47,7 @@ export function validateAction(data: unknown) {
   if (!uuid(d.key)) throw new GameError("A unique action key is required");
   const kind = text(d.kind, 1, 24, "Action");
   const allowed = [
+    ...empireActions,
     "activity",
     "deposit",
     "withdraw",
@@ -83,6 +85,36 @@ export function validateAction(data: unknown) {
     throw new GameError("Invalid player or listing");
   if (kind === "challenge" && !uuid(input.target))
     throw new GameError("Invalid manager");
+  if (
+    ["buyBusiness", "collectBusiness", "upgradeBusiness"].includes(kind) &&
+    !["programmes", "merchandise", "academy"].includes(String(input.id))
+  )
+    throw new GameError("Unknown club business");
+  if (
+    ["buyGoods", "sellGoods"].includes(kind) &&
+    (!["scarves", "shirts", "programmes"].includes(String(input.id)) ||
+      !Number.isInteger(input.quantity) ||
+      Number(input.quantity) < 1 ||
+      Number(input.quantity) > 20)
+  )
+    throw new GameError("Choose merchandise and 1 to 20 units");
+  if (
+    [
+      "joinAlliance",
+      "readMessage",
+      "joinVenture",
+      "readyVenture",
+      "cancelVenture",
+      "resolveVenture",
+    ].includes(kind) &&
+    !uuid(input.id)
+  )
+    throw new GameError("Invalid world reference");
+  if (kind === "createAlliance") text(input.name, 2, 32, "Alliance name");
+  if (["sendMessage", "allianceMessage"].includes(kind))
+    text(input.body, 1, 1000, "Message");
+  if (kind === "sendMessage" && !uuid(input.target))
+    throw new GameError("Choose another manager");
   if (
     kind === "claimDaily" &&
     !["shift", "savings", "profit"].includes(String(input.id))

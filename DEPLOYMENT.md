@@ -1,5 +1,13 @@
 # Deployment and operations
 
+## Current — 17 November 2026
+
+Deployment `cacb984315c442f8bf33a0947e853239`: persistent empire/multiplayer. Migrations 009–010 applied to verification and playable branches. Migration 009 source recovered from previously verified database definitions; migration runner skips recorded versions. No live fixture accounts created.
+
+100 checks pass: 10 unit, 14 original integration, 15 API, 40 client, 12 empire transaction/privacy, five full empire form workflows and four binary asset checks. Build and Worker dry-run pass. Three live clubs snapshotted: two unchanged; owner's club has legitimate ledgered activity during rollout, including saved business purchases/upgrades and alliance founding. No reset.
+
+Keep secret_text, owner allowlist and signup=false. No paid placement hints. Roll back Worker to `cb4340f2d98047db99644589de1347bb` if necessary; added tables can remain unused. Never drop player/social data as rollback. Browser profile is signed out; protected workflows verified with separate verification accounts through real client/Worker.
+
 Latest deployment `cb4340f2d98047db99644589de1347bb`: modal results, compact cards and chapter shortcut. No migrations/auth changes; secret_text retained and signup false. Upload omitted placement hints: region-style hint failed validation and geographic hint requires an unavailable plan feature. Standard placement deployed successfully. Do not add paid placement or request credential reconnection for those feature errors.
 
 Current visual release: `2c059f057a664818aa384e63814accf8`. No migrations. Binary WebP/WOFF2 assets are base64-embedded by package-plugin-deploy.mjs and returned as bytes with correct MIME. Run build, packaging and scripts/assets-smoke.mjs before upload. Live browser portrait verified. All secret_text retained and ALLOW_TEST_ACCOUNTS=false. This supersedes IDs below.

@@ -48,6 +48,54 @@ test("foreign player references are validated before SQL", () => {
     validateAction({ key, kind: "challenge", input: { target: "bob" } }),
   );
 });
+test("empire actions reject forged quantities, ids and message contents", () => {
+  for (const quantity of [-1, 0, 21, 1.5, "2"])
+    assert.throws(() =>
+      validateAction({
+        key,
+        kind: "buyGoods",
+        input: { id: "scarves", quantity },
+      }),
+    );
+  assert.doesNotThrow(() =>
+    validateAction({
+      key,
+      kind: "buyGoods",
+      input: { id: "scarves", quantity: 2 },
+    }),
+  );
+  assert.throws(() =>
+    validateAction({ key, kind: "collectBusiness", input: { id: "invented" } }),
+  );
+  assert.throws(() =>
+    validateAction({
+      key,
+      kind: "resolveVenture",
+      input: { id: "foreign text" },
+    }),
+  );
+  assert.throws(() =>
+    validateAction({
+      key,
+      kind: "sendMessage",
+      input: { target: key, body: "<script>" },
+    }),
+  );
+  assert.throws(() =>
+    validateAction({
+      key,
+      kind: "sendMessage",
+      input: { target: "bad", body: "hello" },
+    }),
+  );
+  assert.doesNotThrow(() =>
+    validateAction({
+      key,
+      kind: "allianceMessage",
+      input: { body: "Football first" },
+    }),
+  );
+});
 test("display names reject markup and controls", () => {
   assert.throws(() => text("<script>", 2, 24, "Name"));
   assert.throws(() => text("a\nname", 2, 24, "Name"));

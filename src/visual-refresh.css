@@ -24,49 +24,169 @@
   color: #e1d3b9;
   box-shadow: 0 16px 70px #000b;
 }
-#action-result::backdrop { background: #000a; backdrop-filter: blur(2px); }
-#action-result .result { margin: 0; padding: 18px; }
-#action-result .dismiss { min-width: 40px; min-height: 40px; }
-.toast:not([hidden]) {
-  position: fixed; inset: auto 14px max(18px, env(safe-area-inset-bottom));
-  width: min(430px, calc(100vw - 28px)); margin: auto; z-index: 100;
-  padding: 14px; background: #32251d; border: 1px solid #c58061;
-  box-shadow: 0 6px 25px #0009; font-size: 14px;
+#action-result::backdrop {
+  background: #000a;
+  backdrop-filter: blur(2px);
 }
-.activity-reward { font-size: 12px; color: #c3b292; margin: 5px 0; }
-.activity-reward b { color: #e5c581; }
-.activity-details { font-size: 12px; color: #ad9e86; }
-.activity-details summary { cursor: pointer; padding: 5px 0; color: #d7bc88; }
-.activity-details p { margin: 5px 0; }
-.next-chapter { display:flex; align-items:center; gap:12px; padding:10px; font-size:12px; }
-.next-chapter > div { flex:1; min-width:0; }
-.next-chapter span { display:block; color:var(--muted); font-size:11px; margin:3px 0; }
-.next-chapter progress { width:100%; height:5px; accent-color:#c9a25a; }
-.next-chapter a { white-space:nowrap; color:#dfbd79; }
-@media (max-width:760px) {
-  #content .page-heading p { display:none; }
-  #content .activity-row { display:grid; grid-template-columns:minmax(0,1fr) auto; padding:9px; gap:8px; align-items:start; }
-  #content .activity-copy { min-width:0; }
-  #content .activity-action { width:auto; margin:0; padding:0; align-self:center; }
-  #content .activity-action .action { min-width:76px !important; min-height:40px; padding:7px 9px; }
-  #content .activity-title h3 { font-size:14px; line-height:1.25; }
-  #content .activity-meta { font-size:11px; gap:3px 8px; margin-top:4px; }
-  #content .activity-reward { font-size:11px; margin:4px 0 0; }
-  #content .activity-details { font-size:11px; }
-  #content .activity-details summary { padding:4px 0 0; }
-  #content .activity-details[open] { padding-bottom:5px; }
-  #content .panel-title { min-height:25px; padding:4px 8px; }
-  #content .approach { min-height:36px; padding:5px 7px; }
-  #content .panel { margin-bottom:7px; }
-  #content .shop-item, #content .player-row, #content .chapter, #content .daily-goal { padding:10px; gap:8px; }
-  #content .stat-grid > div { padding:10px; }
-  #content .profile-character > img { width:76px; height:86px; }
-  #content .profile-character { padding:9px; gap:10px; }
-  #content .profile-character h2 { font-size:20px; }
-  #content .profile-rank { margin:4px 0 7px; }
-  #character { max-height:calc(100dvh - 24px); overflow:auto; }
-  .table-wrap { max-width:100%; overflow:auto; }
-  .next-chapter { padding:8px; }
+#action-result .result {
+  margin: 0;
+  padding: 18px;
+}
+#action-result .dismiss {
+  min-width: 40px;
+  min-height: 40px;
+}
+.toast:not([hidden]) {
+  position: fixed;
+  inset: auto 14px max(18px, env(safe-area-inset-bottom));
+  width: min(430px, calc(100vw - 28px));
+  margin: auto;
+  z-index: 100;
+  padding: 14px;
+  background: #32251d;
+  border: 1px solid #c58061;
+  box-shadow: 0 6px 25px #0009;
+  font-size: 14px;
+}
+.activity-reward {
+  font-size: 12px;
+  color: #c3b292;
+  margin: 5px 0;
+}
+.activity-reward b {
+  color: #e5c581;
+}
+.activity-details {
+  font-size: 12px;
+  color: #ad9e86;
+}
+.activity-details summary {
+  cursor: pointer;
+  padding: 5px 0;
+  color: #d7bc88;
+}
+.activity-details p {
+  margin: 5px 0;
+}
+.next-chapter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  font-size: 12px;
+}
+.next-chapter > div {
+  flex: 1;
+  min-width: 0;
+}
+.next-chapter span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin: 3px 0;
+}
+.next-chapter progress {
+  width: 100%;
+  height: 5px;
+  accent-color: #c9a25a;
+}
+.next-chapter a {
+  white-space: nowrap;
+  color: #dfbd79;
+}
+@media (max-width: 760px) {
+  #content .page-heading p {
+    display: none;
+  }
+  #content .activity-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 9px;
+    gap: 8px;
+    align-items: start;
+  }
+  #content .activity-copy {
+    min-width: 0;
+  }
+  #content .activity-action {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    align-self: center;
+  }
+  #content .activity-action .action {
+    min-width: 76px !important;
+    min-height: 40px;
+    padding: 7px 9px;
+  }
+  #content .activity-title h3 {
+    font-size: 14px;
+    line-height: 1.25;
+  }
+  #content .activity-meta {
+    font-size: 11px;
+    gap: 3px 8px;
+    margin-top: 4px;
+  }
+  #content .activity-reward {
+    font-size: 11px;
+    margin: 4px 0 0;
+  }
+  #content .activity-details {
+    font-size: 11px;
+  }
+  #content .activity-details summary {
+    padding: 4px 0 0;
+  }
+  #content .activity-details[open] {
+    padding-bottom: 5px;
+  }
+  #content .panel-title {
+    min-height: 25px;
+    padding: 4px 8px;
+  }
+  #content .approach {
+    min-height: 36px;
+    padding: 5px 7px;
+  }
+  #content .panel {
+    margin-bottom: 7px;
+  }
+  #content .shop-item,
+  #content .player-row,
+  #content .chapter,
+  #content .daily-goal {
+    padding: 10px;
+    gap: 8px;
+  }
+  #content .stat-grid > div {
+    padding: 10px;
+  }
+  #content .profile-character > img {
+    width: 76px;
+    height: 86px;
+  }
+  #content .profile-character {
+    padding: 9px;
+    gap: 10px;
+  }
+  #content .profile-character h2 {
+    font-size: 20px;
+  }
+  #content .profile-rank {
+    margin: 4px 0 7px;
+  }
+  #character {
+    max-height: calc(100dvh - 24px);
+    overflow: auto;
+  }
+  .table-wrap {
+    max-width: 100%;
+    overflow: auto;
+  }
+  .next-chapter {
+    padding: 8px;
+  }
 }
 body {
   background:
@@ -1006,5 +1126,261 @@ td {
   }
   .manager-chip > span:last-child {
     max-width: 90px;
+  }
+}
+
+/* Shared compact world features; existing palette and navigation retained. */
+.empire-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+.empire-row > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.empire-row h3 {
+  font-size: 14px;
+  color: #dfceb0;
+  margin: 0 0 5px;
+}
+.empire-row small,
+.simple-row small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+.empire-row p {
+  margin: 5px 0;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.empire-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 108px;
+}
+.empire-actions .action {
+  min-height: 36px;
+  padding: 7px 9px;
+}
+.empire-rules {
+  padding: 9px 12px;
+  font-size: 12px;
+  color: #bca98a;
+  line-height: 1.4;
+  background: #211b13;
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+}
+.empire-row .stored {
+  display: block;
+  color: #dfbd79;
+  margin: 4px 0;
+}
+.empire-row details {
+  margin-top: 5px;
+  font-size: 11px;
+}
+.empire-row summary {
+  color: #d8ba82;
+  cursor: pointer;
+}
+.trade-form {
+  display: flex;
+  align-items: end;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.trade-form label {
+  font-size: 10px;
+  color: var(--muted);
+}
+.trade-form input[type="number"] {
+  display: block;
+  width: 48px;
+  height: 34px;
+  border: 1px solid var(--line);
+  background: #15120e;
+  color: inherit;
+  padding: 5px;
+}
+.trade-form button {
+  height: 34px;
+  min-width: 44px;
+  padding: 5px 8px;
+}
+.compact-form select {
+  background: #15120e;
+  color: inherit;
+  padding: 8px;
+  border: 1px solid var(--line);
+  width: 100%;
+}
+.message-row {
+  align-items: start;
+}
+#content .item-grid {
+  display: block;
+}
+#content .shop-item {
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  padding: 10px 12px;
+  gap: 10px;
+  align-items: center;
+  border-right: 0;
+}
+#content .shop-item > button,
+#content .shop-item > .owned,
+#content .shop-item > .lock {
+  grid-column: 3;
+  grid-row: 1;
+}
+#content .shop-item p {
+  min-height: 0;
+  line-height: 1.35;
+  margin: 4px 0 6px;
+}
+#content .region-grid {
+  display: block;
+}
+#content .region-grid article {
+  position: relative;
+  padding: 10px 125px 10px 12px;
+  border-right: 0;
+  min-height: 74px;
+}
+#content .region-grid article > button,
+#content .region-grid article > .owned,
+#content .region-grid article > .lock {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+#content .region-grid h2 {
+  font-size: 16px;
+  margin: 3px 0;
+}
+#content .region-grid p {
+  min-height: 0;
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.3;
+}
+#content .development {
+  padding: 12px;
+  gap: 12px;
+}
+#content .stadium {
+  display: none;
+}
+#content .development h2 {
+  font-size: 18px;
+  margin: 5px 0;
+}
+#content .simple-row,
+#content .daily-goal,
+#content .chapter,
+#content .event-row {
+  padding: 10px 12px;
+  gap: 9px;
+}
+#content .compact-form {
+  padding: 12px;
+  gap: 10px;
+}
+.toast:not([hidden]) {
+  transform: none;
+}
+@media (max-width: 760px) {
+  .empire-row {
+    padding: 9px;
+    gap: 8px;
+    align-items: start;
+  }
+  .empire-row h3 {
+    font-size: 13px;
+  }
+  .empire-actions {
+    min-width: 94px;
+    max-width: 112px;
+  }
+  .empire-actions .action {
+    font-size: 11px;
+    min-height: 38px;
+  }
+  .empire-rules {
+    padding: 8px 9px;
+    font-size: 11px;
+  }
+  .trade-form {
+    max-width: 150px;
+    justify-content: end;
+  }
+  .mobile-categories button {
+    font-size: 11px;
+    letter-spacing: 0.3px;
+  }
+  #content .shop-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 9px;
+    gap: 8px;
+  }
+  #content .shop-item .item-symbol {
+    display: none;
+  }
+  #content .shop-item > button,
+  #content .shop-item > .owned,
+  #content .shop-item > .lock {
+    grid-column: 2;
+  }
+  #content .shop-item small {
+    font-size: 10px;
+  }
+  #content .shop-item p {
+    font-size: 11px;
+  }
+  #content .region-grid article {
+    padding: 9px 112px 9px 9px;
+  }
+  #content .region-grid article > button {
+    right: 9px;
+  }
+  #content .region-grid small {
+    font-size: 9px;
+  }
+  #content .region-grid p {
+    font-size: 11px;
+  }
+  #content table {
+    min-width: 0;
+    table-layout: fixed;
+    font-size: 11px;
+  }
+  #content th,
+  #content td {
+    padding: 8px 4px;
+    overflow-wrap: anywhere;
+  }
+  #content th:first-child,
+  #content td:first-child {
+    width: 22px;
+  }
+  #content th:nth-child(2) {
+    width: 32%;
+  }
+  #content td small {
+    font-size: 10px;
+  }
+  #content table .action {
+    width: 100%;
+    font-size: 10px;
+    padding: 5px 3px;
   }
 }

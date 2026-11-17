@@ -1,76 +1,42 @@
-# Millmoor Takes Over — current project status
+# Millmoor Takes Over — engineering checkpoint
 
-Updated 16 November 2026. Read this file first when continuing.
+Updated 17 November 2026. Read this first, alongside the permanent reference and comparison workbook.
 
-## Live game
+## Current live release
 
-### Current release — modal results and compact phone cards
+Deployment `cacb984315c442f8bf33a0947e853239` at https://millmoor-takes-over-test.kurttev327.workers.dev/
+Repository: https://github.com/Festmiester/millmoor-takes-over
 
-Deployment `cb4340f2d98047db99644589de1347bb` supersedes IDs below. Action results use a centred native dialog outside page flow, with focus, backdrop, Escape and dismiss support. Errors float above the page. Activities now show cost/energy/time, net payout and chance, with descriptions/full odds behind Details & odds. Phone actions sit alongside content. Shared mobile panels, profile, shop, squad and chapter rows tightened; long lists intentionally scroll. Added live next-chapter progress and conditional reward claim in Office using existing server chapter action, not new economy rules. Build and packaged assets pass; focused client modal/placement checks added. Live retained QA session completed Flyers, received centred modal and preserved saved state. Physical Android layout still needs owner review. No schema/auth changes. Lucien needs Google allowlist entry; do not open signup globally or re-enable test accounts.
+Retains the accepted compact illustrated-manager layout. Five new real destinations: Club Businesses, Merchandise Trading, Alliances, Joint Ventures and Manager Mail. Persistent server systems, not placeholders.
 
-### Current visual release — illustrated manager
+- Businesses: three enterprises, rank 1/3/5, five levels, ten-minute income cycles, eight-hour storage cap, collection and old-rate upgrade settlement. No energy/rank rewards.
+- Trade: three goods, server region/day quotes, £3 spread, 100-unit storage, 1–20 units/transaction and a 15-second trade timer. Travel changes quotes; no rank rewards.
+- Alliances: found for £250 at Pee Wee; 12-manager limit, join/leave, automatic owner succession and private room. Leaving cancels waiting ventures involving that manager.
+- Ventures: two Thug-or-higher alliance members; both explicitly ready. Host resolves after atomic checks of £80 and ten energy each and both cooldowns. Success £400 gross each; failure £0. Both receive a 30-minute timer. Combined power raises chance from 65% to a 90% cap. Waiting rooms expire after 24 hours. Hidden advancement stays server-side.
+- Mail: private and alliance messages, read markers, 1,000 characters, 100 sends/day. Only participants/current members get bodies. Latest 50 relevant messages shown. World pages poll outside focused forms/dialogs every 30 seconds.
 
-Deployment `2c059f057a664818aa384e63814accf8` supersedes deployment IDs below. Original illustrated manager now appears in the header, profile and Manager File. Warm black-and-gold panels, compact layout and self-hosted Oswald/PT Sans typography follow the inspected Lovable direction. No gameplay, database or authentication changes. Live browser verified the portrait and Manager File using the retained Deployment QA session. Build, 9 unit tests, 16 focused client checks and 4 byte-exact packaged image/font checks passed. Mobile CSS updated; physical Android rendering has not been independently tested. See ASSET_PROVENANCE.md.
+## Verification
 
-### Latest live batch — scouting and Lovable adaptations
+100 passing checks: 10 unit, 14 original database integration, 15 API, 40 client routes/workflows, 12 empire transaction/privacy, five full empire form workflows and four image/font byte/MIME checks. Build and Worker dry-run pass. Forms tested through real client → Worker → verification database, including partner state after a venture. All fixtures remain on verification. Live HTTP confirms current client, Google configuration and authenticated empire API. Live ledger also confirms business purchases/upgrades and alliance founding are saving in the owner's active club. Native browser is now signed out; protected visual review is limited by that session. Do not re-enable registration for QA. Physical Android review remains with owner.
 
-Deployment `cd844ec787db4b22984e9c8252ebdbdc` is live. See LOVABLE_REVIEW.md for the inspected reference and exact adaptations. Added net/expected quotes, action reasons, richer outcomes, equipment slots, bank-all, squad filters/sorting, standalone manifest and offline feedback. Added five real scouting contacts, rarity-sensitive asset values/age and server capacity of 30 including listings. Existing players preserved. Migrations 005–008 applied atomically to the playable world after verification. Live browser confirmed the new office cards and saved cash; live catalog returns five contacts, capacity 30 and five profiles. Manifest serves with correct MIME type. Temporary signup remains off; Google settings preserved.
+## Database, authentication and preservation
 
-Latest deployment: `5f276b5f37694de5907ac35fad84e82e`. Live browser verified Daily Assignments shows three real goals, saved same-day progress and UTC reset countdown. Google secrets retained; signup disabled. Existing QA session intentionally retained until user linkage is verified.
+Neon project billowing-lake-52144871; database takes_over. Playable br-summer-voice-za1jzfnf; verification br-purple-field-za1hfpw1. Migrations 1–10 applied to both. Migration 009 source recovered exactly from previously verified database functions after scratch resumed with older source. Migration 010 is additive. Three live clubs snapshotted: two unchanged, owner club actively progressed during rollout with normal activity/bank/daily/business/alliance entries. Do not describe active balances as byte-identical. No reset, live fixtures or manual identity changes.
 
-https://millmoor-takes-over-test.kurttev327.workers.dev/
+17 November read-only check now confirms ONE Google-linked club and two retained temporary clubs, superseding old zero-link notes. Live config keeps google=true and testAccounts=false. Keep all sessions/allowlist intact. Lucien access explicitly deferred.
 
-Repository: https://github.com/Festmiester/millmoor-takes-over (public as created by owner; no secrets committed).
-Independent Cloudflare test Worker: millmoor-takes-over-test.
-Account: f4a22d9ed0da8861ada7f65faa6fcac6.
-Production release remains subject to Kurt's approval.
+## Existing core
 
-## Authentication — configured; club linkage still awaiting verification
+13 hidden-advancement ranks, exactly Flyers/Coaching initially, approaches/tiers/proficiency, server energy and timers, five scouts with weighted rarity/age/value, 30-player capacity including listings, recruitment, equipment, bank/ledger, escrowed transfers, training/facilities/travel/rivals, presence/rankings, daily assignments, 18 chapters, profiles, Manager File, history and modal results.
 
-Kurt entered game-specific Google credentials in Cloudflare and reported Google sign-in working. Live /api/config reports google=true and testAccounts=false. The Google redirect uses the correct HTTPS callback, PKCE S256 and secure cookie.
-IMPORTANT: a subsequent read-only check found 0 google identities and 2 test identities in the playable-world database. Thus completed account linkage is NOT independently verified despite the user's successful sign-in report. Keep existing sessions and club visibility intact; do not invalidate old temporary sessions until actual linkage is confirmed. New temporary registration is disabled and its live POST returns Test accounts are disabled.
-Preserve ALL secret_text bindings on deployments: DATABASE_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ALLOWED_GOOGLE_EMAILS. Never reset the world or re-enable test signup to run live QA.
-Owner allowlist is checked against Google-verified email at sign-in. Use Connect Google from Kurt's existing club; do not create another club or edit identity manually. Investigate any error returned by Google callback and verify identity prefix becomes google on the real playable branch after consent.
+## Remaining scope — not full old-game parity
 
-## Latest gameplay batch — daily assignments
+Staff/upkeep, timed item modifiers, proposed diminishing-return proficiency refinement, richer moderation/blocking and mailbox pagination, legacy Floot recovery/import and broader balance/load work remain. Public forums and broader club statistics/find-manager tools are backlog. Optional Club Games/physio/discipline are not implemented and have no fake routes. No claim of exact Bootleggers internals or full Floot parity.
 
-Added Daily Assignments under Main with three server-tracked objectives:
-- Complete 5 activities: £40.
-- Make one bank deposit: £25.
-- Complete 3 net-profitable activities: £75.
-Maximum £140/day. All counts are per player and UTC day, reset at 00:00 UTC. Banking and daily claims do not award rank progress.
-Migration 004 adds claims table, daily status function and transaction-safe reward function. Claims use the existing receipt ledger, player locks and unique per-player/day/objective constraint. Replay and two-key concurrency tests pass.
-Daily progress counts existing same-day activity history. No player balances, ranks, assets or legacy data reset.
+## Deployment and recovery
 
-## Implemented foundation
+Cloudflare account f4a22d9ed0da8861ada7f65faa6fcac6; Worker millmoor-takes-over-test. Test only; no paid upgrades. Build then scripts/package-plugin-deploy.mjs. Preserve ALL secret_text: DATABASE_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ALLOWED_GOOGLE_EMAILS. ENVIRONMENT=test, ALLOW_TEST_ACCOUNTS=false. No paid placement hints.
 
-Compact responsive navigation/header, mobile category menus and two-column submenus; seven real Manager File sections; 13 ranks with hidden progression; two starter office activities; approaches and proficiency; server energy/cooldowns; bank/equipment; scouting/recruitment and owned players; transfer market; rivals; presence/rankings; facilities/travel; 18 campaign chapters; profile and history.
-Lovable AppShell/CharacterModal/nav-config reviewed read-only at feb6b086253a0dfce3b63fdf64c571452e9403bd and informed UI changes. No builder runtime dependency.
+GitHub main is authoritative. A resumed scratch checkout had unrelated older history; a new worktree was made from fetched main. Do not push an older checkout. Verify head and use expected-SHA leases. Keep this file, GAME_SPEC.md, FEATURE_CHECKLIST.md, CHANGELOG.md and DEPLOYMENT.md current.
 
-## Database and verification
-
-Separate Neon project billowing-lake-52144871, database takes_over, London.
-Playable-world branch br-summer-voice-za1jzfnf. Verification branch br-purple-field-za1hfpw1.
-Migrations 1–8 applied to both branches. Tests create fixtures ONLY on verification.
-Current batch passed: 9 unit checks, 14 API checks, 14 original database integration checks (including competing buyers), 6 new scouting checks, 5 daily checks, 33 full client DOM checks plus a 16-check focused run covering Manager File transaction continuity. Build and Worker dry-run pass. Tests found two SQL naming ambiguities and an old cooldown assertion that depended on network speed; all corrected before live rollout. Browser office layout verified; actual phone review remains with Kurt.
-Latest: 7 unit tests, 14 API checks, 5 daily database tests and 29 client checks passed. Daily tests cover UTC reset, player isolation, incomplete goals, duplicate replay, concurrent claims and no rank rewards. API checks verify that closing new registration preserves both current temporary-club sessions and Google-linked sessions. Build and Worker dry-run pass.
-Earlier: 14 original database integration checks passed. Kurt reported successful Google sign-in, but completed database account linkage remains unverified as described above.
-
-## Deploy/recover
-
-Cloudflare plugin is authenticated; CLI may remain unauthenticated. Use plugin API rather than assuming CLI access. Build npm run build then node scripts/package-plugin-deploy.mjs for plugin multipart packaging; this embeds the small static client and Worker together.
-Preserve secret_text bindings with keep_bindings. ENVIRONMENT=test and ALLOW_TEST_ACCOUNTS=false. Compatibility 2026-11-01, nodejs_compat, London placement, observability/traces. No paid plan.
-GitHub source is updated with connector Git tree/commit/ref operations under Festmiester. Local Git history can lag those API commits; inspect remote main before writing, use expected head lease, and do not blindly push the older local branch.
-
-## Next substantial work
-
-Continue business/staff/passive economy, organised cooperative ventures, richer regional effects and messaging. Complete actual Google-club linkage verification without resetting the saved club. Full old Floot read-only recovery/legacy-import mapping and proficiency refinement remain. Scouting/rarity/capacity expansion is now live. FEATURE_CHECKLIST.md preserves all 48 comparisons. Current formulas are the independent game's test baseline, not verified Bootleggers internals.
-Do not claim all Floot parity is complete. No legacy players imported yet.
-
-## Non-negotiable boundaries
-
-- No TinyFish. Kurt explicitly prohibited further usage after its credits ran out.
-- Never change Millmoor Juniors repository, Worker or Neon project muddy-scene-56344781.
-- Floot is read-only; NQDArena/The Grange is separate.
-- No paid services, production deployment, data reset or secret exposure.
-- Continue coherent tested batches; maintain PROJECT_STATUS.md, GAME_SPEC.md, FEATURE_CHECKLIST.md, CHANGELOG.md and DEPLOYMENT.md.
+No TinyFish. Millmoor Juniors, Floot and The Grange/NQDArena remain separate and untouched. No production rollout, resets, subscriptions or real-money play.

@@ -1,5 +1,11 @@
 # Feature checklist — all 48 recovered comparison rows
 
+## 17 November current additions — supersedes historical rows below
+
+Real businesses/offline income, regional merchandise trading, alliances/private rooms, manager mail/read markers and two-manager organised tournaments now have server, transaction and client tests. Navigation exposes working pages only. No public forum, saved-mail folders or elaborate alliance administration claimed.
+
+GitHub and Cloudflare test hosting are live; migrations 1–10 applied. One Google-linked club is confirmed, superseding older zero-link notes. Desktop is the accepted compact two-column layout. Legacy Floot imports, staff/upkeep, timed modifiers, proficiency refinement and extended social tools remain; full parity is not claimed. See PROJECT_STATUS.md.
+
 Latest mobile follow-up: native result dialog (live QA verified), compact activity rows with expandable odds, shared mobile row spacing, floating errors and next-chapter progress/claim in Office. Desktop live review and client modal checks passed; physical phone visual verification pending.
 
 Visual follow-up complete: illustrated manager in header/profile/Manager File, warm black-and-gold panels, compact layout and locally served Lovable font families. Live Manager File reviewed. Android device review remains outstanding.

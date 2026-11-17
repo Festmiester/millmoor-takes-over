@@ -9,6 +9,13 @@ import type {
   Asset,
 } from "./types";
 import { quoteActivity, rarityClass, sortSquad } from "./game-view";
+import {
+  empirePages,
+  renderEmpire,
+  updateEmpireTimers,
+  type EmpireState,
+} from "./empire";
+let empire: EmpireState | null = null;
 const app = document.querySelector<HTMLDivElement>("#app")!;
 let player: Player | null = null,
   catalog: Catalog = { ranks: [], activities: [], items: [] },
@@ -88,6 +95,9 @@ const groups = [
       ["rivals", "Rival Challenges"],
       ["campaign", "Road to Legend"],
       ["club", "Club Development"],
+      ["businesses", "Club Businesses"],
+      ["ventures", "Joint Ventures"],
+      ["alliance", "Alliances"],
     ],
   },
   {
@@ -97,8 +107,10 @@ const groups = [
       ["market", "Transfer Market"],
       ["bank", "Club Bank"],
       ["travel", "Transit Hub"],
+      ["trading", "Merchandise Trading"],
     ],
   },
+  { name: "Messaging", links: [["mail", "Manager Mail"]] },
 ];
 const chapters = [
   "First Boots on the Ground",
@@ -250,6 +262,7 @@ function renderLogin() {
 }
 function content() {
   const p = player!;
+  if (empirePages.includes(page)) return renderEmpire(page, empire, p, world);
   switch (page) {
     case "daily":
       return (
@@ -290,7 +303,12 @@ function content() {
           "Independent timers",
         ) +
         `<p class="footnote">Independent timers · Failed moves still use energy and entry costs.</p>` +
-        (p.chapter < chapters.length ? section("YOUR NEXT CHAPTER", `<div class="next-chapter"><div><strong>${esc(chapters[p.chapter])}</strong><span>${Math.min(p.wins, (p.chapter + 1) * 10)} / ${(p.chapter + 1) * 10} successful moves · ${money(100 * (p.chapter + 1))} reward</span><progress aria-label="Chapter successful moves" max="${(p.chapter + 1) * 10}" value="${Math.min(p.wins, (p.chapter + 1) * 10)}"></progress></div>${p.wins >= (p.chapter + 1) * 10 && p.rank >= Math.min(12, Math.floor(p.chapter / 2)) ? actionButton("chapter", "", "Claim chapter", false) : '<a href="#campaign">Objectives →</a>'}</div>`) : '')
+        (p.chapter < chapters.length
+          ? section(
+              "YOUR NEXT CHAPTER",
+              `<div class="next-chapter"><div><strong>${esc(chapters[p.chapter])}</strong><span>${Math.min(p.wins, (p.chapter + 1) * 10)} / ${(p.chapter + 1) * 10} successful moves · ${money(100 * (p.chapter + 1))} reward</span><progress aria-label="Chapter successful moves" max="${(p.chapter + 1) * 10}" value="${Math.min(p.wins, (p.chapter + 1) * 10)}"></progress></div>${p.wins >= (p.chapter + 1) * 10 && p.rank >= Math.min(12, Math.floor(p.chapter / 2)) ? actionButton("chapter", "", "Claim chapter", false) : '<a href="#campaign">Objectives →</a>'}</div>`,
+            )
+          : "")
       );
     case "scouting":
     case "recruitment":
@@ -719,7 +737,8 @@ async function refreshPage() {
   try {
     await refreshState();
     if (page === "daily") daily = await api("/api/daily");
-    if (["online", "leaderboard", "market", "rivals"].includes(page))
+    if (empirePages.includes(page)) empire = await api("/api/empire");
+    if (["online", "leaderboard", "market", "rivals", "mail"].includes(page))
       await refreshWorld();
     if (page === "history") events = (await api("/api/events")).events;
     render();
@@ -772,6 +791,7 @@ async function sendAction(payload: unknown) {
         before && r.player.rank > before.rank ? r.player.rankName : undefined,
     };
     if (page === "daily") daily = await api("/api/daily");
+    if (empirePages.includes(page)) empire = await api("/api/empire");
     if (["market", "rivals"].includes(page)) await refreshWorld();
     busy = false;
     render();
@@ -899,6 +919,14 @@ app.addEventListener("submit", async (e) => {
       } finally {
         button.disabled = false;
       }
+    } else if (form.dataset.empireKind) {
+      const kind =
+        (e as SubmitEvent).submitter?.getAttribute("value") ||
+        form.dataset.empireKind;
+      await act(kind, "", {
+        ...fields,
+        ...(fields.quantity ? { quantity: Number(fields.quantity) } : {}),
+      });
     } else if (form.id === "profile") {
       await api("/api/profile", fields);
       await refreshState();
@@ -946,6 +974,7 @@ window.addEventListener("online", () => {
 });
 function updateTimers() {
   if (!player) return;
+  updateEmpireTimers(empire, offset, busy, player);
   const elapsed = Math.max(
     0,
     Math.floor((Date.now() + offset - Date.parse(player.energyAt)) / 1000),
@@ -1020,6 +1049,14 @@ setInterval(async () => {
   if (!player || document.visibilityState !== "visible" || busy) return;
   try {
     await refreshState();
+    if (
+      empirePages.includes(page) &&
+      !document.querySelector("dialog[open]") &&
+      !document.activeElement?.matches("input,select,textarea")
+    ) {
+      empire = await api("/api/empire");
+      render();
+    }
     updateTimers();
     const energy =
       document.querySelector<HTMLProgressElement>("header progress");
@@ -1032,6 +1069,7 @@ document.addEventListener("visibilitychange", () => {
 async function loadGame() {
   await refreshState();
   if (page === "daily") daily = await api("/api/daily");
+  if (empirePages.includes(page)) empire = await api("/api/empire");
   await refreshWorld();
   render();
   const pending = sessionStorage.getItem("mto_pending");

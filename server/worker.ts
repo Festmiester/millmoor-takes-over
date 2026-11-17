@@ -1,5 +1,6 @@
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 import { createRemoteJWKSet, jwtVerify } from "jose";
+import { empireActions } from "./empire-actions";
 import {
   GameError,
   text,
@@ -276,6 +277,11 @@ async function handle(r: Request, env: Env) {
   if (path === "/api/action" && r.method === "POST") {
     await throttle(sql, "action:" + pid, 90);
     const d = validateAction(await body(r));
+    if (empireActions.includes(d.kind)) {
+      const rows =
+        await sql`SELECT mto_empire_action(${pid}::uuid,${d.key}::uuid,${d.kind},${JSON.stringify(d.input)}::jsonb) AS result`;
+      return json(rows[0].result);
+    }
     if (d.kind === "claimDaily") {
       const rows =
         await sql`SELECT mto_claim_daily(${pid}::uuid,${d.key}::uuid,${String(d.input.id)}) AS result`;
@@ -284,6 +290,10 @@ async function handle(r: Request, env: Env) {
     const rows =
       await sql`SELECT mto_action(${pid}::uuid,${d.key}::uuid,${d.kind},${JSON.stringify(d.input)}::jsonb) AS result`;
     return json(rows[0].result);
+  }
+  if (path === "/api/empire" && r.method === "GET") {
+    const rows = await sql`SELECT mto_empire_status(${pid}::uuid) AS empire`;
+    return json(rows[0].empire);
   }
   if (path === "/api/daily" && r.method === "GET") {
     const rows = await sql`SELECT mto_daily(${pid}::uuid) AS daily`;

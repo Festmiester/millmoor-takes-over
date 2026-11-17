@@ -1,5 +1,17 @@
 # Millmoor Takes Over — game specification
 
+## 17 November — persistent empire expansion
+
+Businesses unlock at ranks 1/3/5: Matchday Programmes (£180, £4 per ten minutes), Merchandise Stall (£900, £14) and Community Academy (£3,000, £40). Five levels multiply base income by level. Upgrade cost = purchase price × next level. Only completed cycles accrue, capped at 48/eight hours. Below-cap collection retains partial time; capped collection restarts the clock. Upgrades settle completed cycles at the old rate, resetting partial time. No energy/rank rewards.
+
+Regional merchandise quotes are server-derived by region and UTC day. Sell quote = buy quote minus £3. Storage 100 units, transaction 1–20, shared trade cooldown 15 seconds. Existing £50 travel/two-minute timer applies. No rank rewards for trading.
+
+Alliances unlock at Pee Wee, cost £250 to found and hold 12 managers. Open join/leave, private room and owner succession to longest-serving remaining member. Empty alliance becomes inactive. Leaving cancels the manager's waiting ventures.
+
+Joint tournaments require two Thug-or-higher alliance members, both ready. Each must have £80, ten energy and no venture timer when the host starts. Both are checked/locked atomically. Chance = min(90,65+integer(combined power/20)) percent. Success pays £400 gross and awards 550 hidden progress each; failure pays £0 and awards 25 hidden progress. Both receive a 30-minute cooldown. Waiting rooms expire after 24 hours. These are original test balance decisions, not Bootleggers formulas.
+
+Private/alliance mail is plain text, 1–1,000 characters and 100 sends/day. Only participants/current alliance members get bodies. Inbox read markers and latest 50 relevant messages. World views poll every 30 seconds outside focused forms/dialogs. No email or club-app records exposed.
+
 Action results are modal overlays rather than page banners. Activity summaries retain cost, energy, timer, chance and net reward; detailed assumptions and rarity odds are expandable. Office exposes existing campaign successful-move progress and a claim shortcut when both rank and move requirements are satisfied. It does not expose hidden rank progress or change chapter payouts.
 
 ## Visual identity

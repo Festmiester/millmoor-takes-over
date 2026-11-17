@@ -1,0 +1,18 @@
+export const empireActions = [
+  "buyBusiness",
+  "collectBusiness",
+  "upgradeBusiness",
+  "buyGoods",
+  "sellGoods",
+  "createAlliance",
+  "joinAlliance",
+  "leaveAlliance",
+  "sendMessage",
+  "allianceMessage",
+  "readMessage",
+  "createVenture",
+  "joinVenture",
+  "readyVenture",
+  "cancelVenture",
+  "resolveVenture",
+];

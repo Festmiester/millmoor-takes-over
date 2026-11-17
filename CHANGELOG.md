@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-17 — persistent empire and multiplayer
+- Added businesses, offline income, five upgrade levels and collection.
+- Added regional merchandise quotes, stock ownership, buys/sales and trade timer.
+- Added alliances, private rooms, manager mail/read markers and message limits.
+- Added two-manager tournaments with readiness, atomic costs/rewards, concurrency and replay safeguards.
+- Retained compact illustrated layout; shared rows for new pages, shop and travel.
+- Additive migrations 009–010. No existing-club reset. 100 checks passed.
+
 ## 2026-11-16 — mobile density and action popups
 - Moved action results into native modal dialogs without pushing page content.
 - Collapsed detailed odds/descriptions; kept cash, chance, cost, energy and timers visible.
