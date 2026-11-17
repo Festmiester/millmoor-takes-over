@@ -1055,6 +1055,10 @@ setInterval(async () => {
   if (!player || document.visibilityState !== "visible" || busy) return;
   try {
     await refreshState();
+    if (page === "businesses") {
+      businesses = await api("/api/businesses");
+      render();
+    }
     updateTimers();
     const energy =
       document.querySelector<HTMLProgressElement>("header progress");
