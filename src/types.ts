@@ -23,6 +23,9 @@ export interface Player {
   cash: number;
   bank: number;
   energy: number;
+  energyMax?: number;
+  energyRegen?: number;
+  energyInterval?: number;
   energyAt: string;
   cooldowns: Record<string, string>;
   mastery: Record<string, number>;

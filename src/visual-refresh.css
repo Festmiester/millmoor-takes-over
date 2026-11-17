@@ -1130,6 +1130,28 @@ td {
 }
 
 /* Shared compact world features; existing palette and navigation retained. */
+.board-topic {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 12px;
+  font-size: 12px;
+}
+.board-topic > summary {
+  cursor: pointer;
+  color: #dfbd79;
+  font-weight: 700;
+}
+.board-topic small {
+  display: block;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 3px;
+  font-size: 11px;
+}
+.board-topic > p {
+  padding: 8px 0;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
 .empire-row {
   display: flex;
   align-items: center;

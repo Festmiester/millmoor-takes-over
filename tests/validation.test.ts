@@ -101,6 +101,47 @@ test("display names reject markup and controls", () => {
   assert.throws(() => text("a\nname", 2, 24, "Name"));
   assert.equal(text(" Kurt ", 2, 24, "Name"), "Kurt");
 });
+test("squad and board inputs reject duplicate identities, markup and malformed threads", () => {
+  assert.throws(() =>
+    validateAction({
+      key,
+      kind: "soloVenture",
+      input: { players: [key, key, key] },
+    }),
+  );
+  assert.throws(() =>
+    validateAction({
+      key,
+      kind: "boardPost",
+      input: { category: "chat", title: "Hello", body: "<b>Bad</b>" },
+    }),
+  );
+  assert.throws(() =>
+    validateAction({
+      key,
+      kind: "boardPost",
+      input: { parent: "bad", body: "Reply" },
+    }),
+  );
+  assert.doesNotThrow(() =>
+    validateAction({
+      key,
+      kind: "boardPost",
+      input: { parent: key, body: "Reply" },
+    }),
+  );
+  assert.doesNotThrow(() =>
+    validateAction({
+      key,
+      kind: "boardPost",
+      input: {
+        category: "ventures",
+        title: "Partner needed",
+        body: "Rotherham tournament",
+      },
+    }),
+  );
+});
 test("rank thresholds and activity progress stay outside browser source", () => {
   const source = readFileSync("src/main.ts", "utf8");
   assert.doesNotMatch(source, /750000|460000|threshold|\.xp\b|Experience \+/);

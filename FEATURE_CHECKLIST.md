@@ -1,5 +1,9 @@
 # Feature checklist — all 48 recovered comparison rows
 
+## Current pacing and community completion
+
+Local whiteboard/forums/classifieds and threaded replies are implemented, with location/authorship checks and posting limits. Solo ventures use real owned players with eight-hour fatigue; human ventures use explicit readiness, location checks and an eight-hour shared timer. Stamina capacity/recovery are server-driven and fitness-sensitive. Diminishing proficiency is now implemented; failed attempts add practice rather than reducing odds. Advanced office cash expectations and training benefits were checked. See PACING_REVIEW.md and PROJECT_STATUS.md for exact validation and remaining optional scope. Older pending-board/proficiency rows are superseded.
+
 ## 17 November current additions — supersedes historical rows below
 
 Real businesses/offline income, regional merchandise trading, alliances/private rooms, manager mail/read markers and two-manager organised tournaments now have server, transaction and client tests. Navigation exposes working pages only. No public forum, saved-mail folders or elaborate alliance administration claimed.

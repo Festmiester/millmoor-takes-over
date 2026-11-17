@@ -1,10 +1,12 @@
 import type { Player, World } from "./types";
+import { staminaState } from "./game-view";
 export const empirePages = [
   "businesses",
   "trading",
   "alliance",
   "ventures",
   "mail",
+  "board",
 ];
 type Business = {
   id: string;
@@ -47,6 +49,19 @@ type Venture = {
   expiresAt: string;
   hostClub: string;
   partnerClub: string | null;
+  region?: string;
+};
+type BoardPost = {
+  id: string;
+  parentId: string | null;
+  author: string;
+  region: string;
+  category: string;
+  title: string;
+  body: string;
+  createdAt: string;
+  name: string;
+  club: string;
 };
 export interface EmpireState {
   serverTime: string;
@@ -65,6 +80,8 @@ export interface EmpireState {
   members: { id: string; name: string; club: string }[];
   messages: Message[];
   ventures: Venture[];
+  board?: BoardPost[];
+  crewDuties?: { id: string; availableAt: string }[];
 }
 const esc = (v: unknown) =>
   String(v ?? "").replace(
@@ -203,34 +220,118 @@ export function renderEmpire(
           .join("") || '<p class="empty">No mail yet.</p>',
       )
     );
-  if (page === "ventures")
+  if (page === "board") {
+    const posts = state.board || [];
+    const byline = (b: BoardPost) =>
+      `<small>${esc(b.name)} · ${esc(b.club)} · ${new Date(b.createdAt).toLocaleString("en-GB")}</small>`;
+    const remove = (b: BoardPost) =>
+      b.author === p.id ? button("removeBoardPost", b.id, "Remove") : "";
     return (
       heading(
-        "Joint Ventures",
-        "Two managers. One tournament. Shared risk and reward.",
+        "Community Board",
+        p.region + " · Chat, questions and venture partners",
       ) +
       section(
-        "ORGANISED TOURNAMENT",
+        "WHITEBOARD · " + esc(p.region),
+        `<form class="compact-form" data-empire-kind="boardPost"><input type="hidden" name="category" value="chat"><input type="hidden" name="title" value="Touchline chat"><label>Say something<input name="body" maxlength="1000" required placeholder="Chat with managers in your location"></label><button class="action">Post to whiteboard</button></form>` +
+          posts
+            .filter((b) => b.category === "chat" && !b.parentId)
+            .slice(0, 20)
+            .map(
+              (b) =>
+                `<article class="empire-row message-row"><div>${byline(b)}<p>${esc(b.body)}</p></div>${remove(b)}</article>`,
+            )
+            .join(""),
+      ) +
+      section(
+        "ASK OR ADVERTISE",
+        `<form class="compact-form" data-empire-kind="boardPost"><label>Board<select name="category"><option value="questions">Questions & help</option><option value="ventures">Venture Classifieds</option></select></label><label>Title<input name="title" minlength="2" maxlength="80" required></label><label>Post<input name="body" maxlength="1000" required></label><button class="action">Create topic</button><small>Local to ${esc(p.region)} · 8 seconds between posts · 60 posts/day · No stamina cost or rank rewards.</small></form>`,
+      ) +
+      ["questions", "ventures"]
+        .map((category) =>
+          section(
+            category === "questions"
+              ? "QUESTIONS & HELP"
+              : "VENTURE CLASSIFIEDS",
+            posts
+              .filter((b) => b.category === category && !b.parentId)
+              .map(
+                (b) =>
+                  `<details class="board-topic"><summary>${esc(b.title)} ${byline(b)}</summary><p>${esc(b.body)}</p>${remove(b)}${posts
+                    .filter((reply) => reply.parentId === b.id)
+                    .reverse()
+                    .map(
+                      (reply) =>
+                        `<article class="empire-row"><div>${byline(reply)}<p>${esc(reply.body)}</p></div>${remove(reply)}</article>`,
+                    )
+                    .join(
+                      "",
+                    )}<form class="compact-form" data-empire-kind="boardPost"><input type="hidden" name="parent" value="${b.id}"><label>Reply<input name="body" maxlength="1000" required></label><button class="action">Reply</button></form>${category === "ventures" ? '<a class="text-button" href="#ventures">See local open ventures →</a>' : ""}</details>`,
+              )
+              .join("") || '<p class="empty">No topics here yet.</p>',
+          ),
+        )
+        .join("")
+    );
+  }
+  if (page === "ventures") {
+    const remaining = Math.max(
+      0,
+      Math.ceil(
+        (Date.parse(p.cooldowns.venture || "1970-01-01") -
+          Date.parse(state.serverTime)) /
+          1000,
+      ),
+    );
+    const label = remaining
+      ? "Ready in " +
+        Math.floor(remaining / 3600) +
+        "h " +
+        Math.floor((remaining % 3600) / 60) +
+        "m"
+      : "Venture ready";
+    const duties = state.crewDuties || [];
+    const options = p.squad
+      .map(
+        (a) =>
+          `<option value="${a.id}" ${duties.some((d) => d.id === a.id) ? "disabled" : ""}>${esc(a.name)} · ${a.position} · power ${a.power}${duties.some((d) => d.id === a.id) ? " · recovering" : ""}</option>`,
+      )
+      .join("");
+    return (
+      heading("Joint Ventures", "Organised football operations · " + p.region) +
+      section(
+        "TWO-MANAGER TOURNAMENT",
         note(
-          "Requires Thug and alliance membership. Each participant commits £80 and 10 energy when the host starts. Success pays £400 each before costs; failure pays £0. Success chance is 65–90%, improved by combined club power. Both receive a 30-minute venture cooldown. Waiting ventures expire after 24 hours.",
+          "£500 entry · 20 stamina · £8,000 gross on success · 8-hour cooldown",
         ) +
-          (!own
-            ? '<div class="simple-row"><a href="#alliance">Join an alliance first →</a></div>'
-            : p.rank < 2
-              ? note("Earn Thug to organise a venture.")
-              : button("createVenture", "", "Organise tournament")),
+          '<details class="board-topic"><summary>Rules & odds</summary><p>Thug required. Both managers must be in the host location and mark ready. Each commits £500 and 20 stamina. Success pays £8,000 gross each (£7,500 net); failure loses the £500 entry. Combined power gives 65–90% success. Eight-hour shared venture cooldown. No alliance required for new public tournaments.</p></details>' +
+          `<div class="simple-row"><strong data-venture-clock>${label}</strong>${p.rank < 2 ? '<span class="lock">◇ Thug</span>' : button("createVenture", "", "Organise tournament", remaining > 0)}<a href="#board">Find a partner →</a></div>`,
       ) +
       section(
-        "ALLIANCE VENTURES",
+        "USE YOUR SCOUTED SQUAD",
+        note(
+          "£750 entry · 20 stamina · £4,500 gross on success · Three owned players · 8-hour cooldown",
+        ) +
+          '<details class="board-topic"><summary>Squad rules & odds</summary><p>Playing alone? Select three different owned, unlisted players. Entry £750 and 20 stamina. Success pays £4,500 gross (£3,750 net); chance is 55–85%, improved by their power and your facilities. The manager and selected players recover for eight hours. The same timer prevents swapping between solo and multiplayer ventures. Cancel a partnered waiting room first; an empty room closes automatically.</p></details>' +
+          (p.rank < 2
+            ? note("Unlocks at Thug.")
+            : p.squad.length < 3
+              ? '<div class="simple-row"><span>Recruit three players first.</span><a href="#scouting">Talent Scouts →</a></div>'
+              : `<form class="compact-form" data-empire-kind="soloVenture">${[1, 2, 3].map((i) => `<label>Squad role ${i}<select name="player${i}" required><option value="">Choose a player</option>${options}</select></label>`).join("")}<button class="action" data-solo-start ${remaining || p.cash < 750 || p.energy < 20 ? "disabled" : ""}>Run squad venture · £750</button></form>`),
+      ) +
+      section(
+        "LOCAL & YOUR VENTURES",
         state.ventures
           .map((v) => {
             const participant = v.host === p.id || v.partner === p.id;
             const ready = v.host === p.id ? v.hostReady : v.partnerReady;
-            return `<article class="empire-row"><div><h3>Joint tournament</h3><small>${esc(v.hostClub)} ${v.hostReady ? "✓ ready" : ""} + ${esc(v.partnerClub || "Waiting for partner")} ${v.partnerReady ? "✓ ready" : ""}</small><p>${v.status === "complete" ? (v.success ? "Tournament succeeded" : "Tournament fell short") : v.status === "cancelled" ? "Cancelled" : `Waiting · expires ${new Date(v.expiresAt).toLocaleString("en-GB")}`}</p></div><div class="empire-actions">${v.status !== "open" ? "" : !participant && !v.partner ? button("joinVenture", v.id, "Join") : participant ? button("readyVenture", v.id, ready ? "Withdraw readiness" : "Mark ready") + (v.host === p.id ? button("resolveVenture", v.id, "Start tournament", !v.hostReady || !v.partnerReady) : "") + button("cancelVenture", v.id, "Cancel") : ""}</div></article>`;
+            return `<article class="empire-row"><div><h3>Tournament · ${esc(v.region || p.region)}</h3><small>${esc(v.hostClub)} ${v.hostReady ? "✓ ready" : ""} + ${esc(v.partnerClub || "Waiting for partner")} ${v.partnerReady ? "✓ ready" : ""}</small><p>${v.status === "complete" ? (v.success ? "Tournament succeeded" : "Tournament fell short") : v.status === "cancelled" ? "Cancelled" : `Waiting · expires ${new Date(v.expiresAt).toLocaleString("en-GB")}`}</p></div><div class="empire-actions">${v.status !== "open" ? "" : !participant && !v.partner ? button("joinVenture", v.id, "Join") : participant ? button("readyVenture", v.id, ready ? "Withdraw readiness" : "Mark ready", !ready && remaining > 0) + (v.host === p.id ? button("resolveVenture", v.id, "Start tournament", !v.hostReady || !v.partnerReady || remaining > 0) : "") + button("cancelVenture", v.id, "Cancel") : ""}</div></article>`;
           })
-          .join("") || '<p class="empty">No ventures yet.</p>',
+          .join("") ||
+          '<p class="empty">No local ventures yet. You can organise one or use your squad.</p>',
       )
     );
+  }
   return "";
 }
 export function updateEmpireTimers(
@@ -240,6 +341,82 @@ export function updateEmpireTimers(
   p: Player,
 ) {
   if (!state) return;
+  const stamina = staminaState(p, Date.now() + offset);
+  const ventureSeconds = Math.max(
+    0,
+    Math.ceil(
+      (Date.parse(p.cooldowns.venture || "1970-01-01") - Date.now() - offset) /
+        1000,
+    ),
+  );
+  const ventureLabel = `Ready in ${Math.floor(ventureSeconds / 3600)}h ${Math.floor((ventureSeconds % 3600) / 60)}m ${ventureSeconds % 60}s`;
+  const clock = document.querySelector("[data-venture-clock]");
+  if (clock)
+    clock.textContent = ventureSeconds ? ventureLabel : "Venture ready";
+  document
+    .querySelectorAll<HTMLButtonElement>('[data-action="createVenture"]')
+    .forEach((b) => {
+      b.disabled = busy || ventureSeconds > 0;
+      b.textContent = ventureSeconds ? ventureLabel : "Organise tournament";
+    });
+  document
+    .querySelectorAll<HTMLButtonElement>(
+      '[data-action="readyVenture"],[data-action="resolveVenture"]',
+    )
+    .forEach((b) => {
+      const v = state.ventures.find((v) => v.id === b.dataset.id);
+      if (!v) return;
+      const ready = v.host === p.id ? v.hostReady : v.partnerReady;
+      if (b.dataset.action === "readyVenture" && ready) {
+        b.disabled = busy;
+        b.textContent = "Withdraw readiness";
+        return;
+      }
+      b.disabled =
+        busy ||
+        ventureSeconds > 0 ||
+        p.cash < 500 ||
+        stamina.current < 20 ||
+        v.region !== p.region ||
+        (b.dataset.action === "resolveVenture" &&
+          (!v.hostReady || !v.partnerReady));
+      b.textContent = ventureSeconds
+        ? ventureLabel
+        : p.cash < 500
+          ? "Need £500"
+          : stamina.current < 20
+            ? "Need 20 stamina"
+            : v.region !== p.region
+              ? "Travel to " + v.region
+              : b.dataset.action === "readyVenture"
+                ? "Mark ready"
+                : "Start tournament";
+    });
+  const solo = document.querySelector<HTMLButtonElement>("[data-solo-start]");
+  if (solo) {
+    const fields = new FormData(solo.form!);
+    const ids = [
+      fields.get("player1"),
+      fields.get("player2"),
+      fields.get("player3"),
+    ];
+    const selected = ids.every(Boolean) && new Set(ids).size === 3;
+    solo.disabled =
+      busy ||
+      ventureSeconds > 0 ||
+      p.cash < 750 ||
+      stamina.current < 20 ||
+      !selected;
+    solo.textContent = ventureSeconds
+      ? ventureLabel
+      : p.cash < 750
+        ? "Need £750"
+        : stamina.current < 20
+          ? "Need 20 stamina"
+          : !selected
+            ? "Choose three players"
+            : "Run squad venture · £750";
+  }
   for (const b of state.business.businesses.filter(
     (b) => b.level && b.collectedAt,
   )) {

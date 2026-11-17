@@ -1,5 +1,13 @@
 # Millmoor Takes Over — game specification
 
+## Current pacing rules — supersede earlier numbers below
+
+See PACING_REVIEW.md for research and full rules. Base stamina 200, fitness +5 per level up to 300; regenerate +5 per 30 seconds. No existing balance/asset reset. Human ventures: two managers in the host location, £500 and 20 stamina each, £8,000 gross success payout, shared eight-hour cooldown. New public rooms require no alliance. Solo: manager plus three different owned/unlisted players, £750 and 20 stamina, £4,500 gross success payout; both manager and asset IDs recover eight hours. Fatigue follows transfers. Human success/failure hidden progress 1500/100; solo 750/50. Withdraw readiness for changed terms; do not retroactively extend old completed timers.
+
+Local whiteboard, Questions and Venture Classifieds support threads/replies and author-only soft removal, 1,000-character posts, eight seconds between posts and 60/day. No cash/rank/stamina reward/cost for posting. Existing mail stays private.
+
+Practice rises +1 on success/+0.5 on failure; capped 30-point bonus with diminishing returns and preserved nonnegative legacy bonuses. Advanced office rewards target positive fresh cash expectation in every approach. Focus gives +1 power/level and +1 activity chance per four levels (max five chance points). Resilience +2 power/level, leadership +1, fitness +5 capacity/level to cap and +1 power per four levels. Equipment and facility effects persist.
+
 ## 17 November — persistent empire expansion
 
 Businesses unlock at ranks 1/3/5: Matchday Programmes (£180, £4 per ten minutes), Merchandise Stall (£900, £14) and Community Academy (£3,000, £40). Five levels multiply base income by level. Upgrade cost = purchase price × next level. Only completed cycles accrue, capped at 48/eight hours. Below-cap collection retains partial time; capped collection restarts the clock. Upgrades settle completed cycles at the old rate, resetting partial time. No energy/rank rewards.

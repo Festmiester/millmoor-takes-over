@@ -39,7 +39,7 @@ await test("starter state has hidden rank and exactly two unlocked activities", 
   const p = await state(beginner);
   assert.equal(p.rankName, "Scum");
   assert.equal(p.cash, 250);
-  assert.equal(p.energy, 100);
+  assert.equal(p.energy, 200);
   assert.equal("xp" in p, false);
   const rows =
     await sql`SELECT id FROM mto_activities WHERE rank_required=0 ORDER BY id`;
@@ -67,7 +67,7 @@ await test("independent cooldowns permit coaching immediately after flyers", asy
   await action(beginner, "activity", { id: "flyers", approach: "steady" });
   await action(beginner, "activity", { id: "coaching", approach: "steady" });
   const p = await state(beginner);
-  assert.equal(p.energy, 92);
+  assert.ok(p.energy >= 192 && p.energy <= 200);
   assert.ok(p.cooldowns.flyers);
   assert.ok(p.cooldowns.coaching);
 });
@@ -110,10 +110,10 @@ await test("equipment can only be equipped when owned", async () => {
   assert.equal(p.player.power, 4);
   assert.ok(p.player.inventory[0].equipped);
 });
-await test("offline energy recovery caps at one hundred", async () => {
+await test("offline stamina recovery caps at the authoritative capacity", async () => {
   await sql`UPDATE mto_players SET energy=20,energy_at=now()-interval '100 minutes' WHERE id=${beginner}`;
   const p = await state(beginner);
-  assert.equal(p.energy, 100);
+  assert.equal(p.energy, 200);
 });
 await test("concurrent different-key activity requests allow only one outcome", async () => {
   const results = await Promise.allSettled([

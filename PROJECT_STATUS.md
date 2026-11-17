@@ -2,7 +2,19 @@
 
 Updated 17 November 2026. Read this first, alongside the permanent reference and comparison workbook.
 
-## Current live release
+## Current live release — stamina, squad operations and boards
+
+Deployment `014dcd68c97e4521b9ca1bf5ebd311b8`. Migrations 1–14 applied to verification and playable branches. Full balance rationale, source links and rules: PACING_REVIEW.md.
+
+Base stamina 200; fitness adds up to 100 more. Five regeneration every 30 seconds (20-minute base refill). Client uses server-supplied limits/ticks. Existing balances, ranks and owned players are preserved.
+
+Ventures: eight-hour manager timer shared across modes. Human mode: two managers at the host location, £500/20 stamina each, £8,000 gross on success. Public local rooms no longer require an alliance; historical private rooms remain private. Solo mode: three different available owned/unlisted players, £750/20 stamina, £4,500 success gross. Selected assets recover for eight hours even after transfer. Cancel partnered rooms explicitly before solo; empty rooms close automatically. Existing readiness cleared for changed entry terms; prior completed-run timers retained.
+
+Messaging → Community Board now has a local whiteboard, Questions & Help and Venture Classifieds, with threads/replies, author removal, region enforcement, limits and links to open ventures. Practice now improves after success/failure with diminishing gains, without losing legacy bonuses. Advanced office expected cash returns were repaired, while failure costs remain. All four training attributes have real effects, shown in their rows.
+
+Validation: 13 unit, 14 original integration, 41 client, 12 empire integration, 15 API, eight empire client workflows, 11 pacing assertion groups and four byte/MIME checks = 118 checks. Build/dry-run pass. Network latency exposed two timing assumptions in tests; those checks now use controlled server timestamps. Host-to-Neon egress later failed mid-suite; the remaining practice/training/partner-guard assertions passed through the Neon connector, using the saved tests/pacing-final.sql on verification only. Do not imply one uninterrupted pacing-script run passed after that network interruption. Live schema/cap/regeneration checks pass for all three clubs. Protected native visual QA remains limited to the signed-out browser profile.
+
+## Previous empire release
 
 Deployment `cacb984315c442f8bf33a0947e853239` at https://millmoor-takes-over-test.kurttev327.workers.dev/
 Repository: https://github.com/Festmiester/millmoor-takes-over
@@ -21,7 +33,7 @@ Retains the accepted compact illustrated-manager layout. Five new real destinati
 
 ## Database, authentication and preservation
 
-Neon project billowing-lake-52144871; database takes_over. Playable br-summer-voice-za1jzfnf; verification br-purple-field-za1hfpw1. Migrations 1–10 applied to both. Migration 009 source recovered exactly from previously verified database functions after scratch resumed with older source. Migration 010 is additive. Three live clubs snapshotted: two unchanged, owner club actively progressed during rollout with normal activity/bank/daily/business/alliance entries. Do not describe active balances as byte-identical. No reset, live fixtures or manual identity changes.
+Neon project billowing-lake-52144871; database takes_over. Playable br-summer-voice-za1jzfnf; verification br-purple-field-za1hfpw1. Migrations 1–14 are now applied to both. Migration 009 source recovered exactly from previously verified database functions after scratch resumed with older source. Migration 010 is additive. Three live clubs snapshotted: two unchanged, owner club actively progressed during rollout with normal activity/bank/daily/business/alliance entries. Do not describe active balances as byte-identical. No reset, live fixtures or manual identity changes.
 
 17 November read-only check now confirms ONE Google-linked club and two retained temporary clubs, superseding old zero-link notes. Live config keeps google=true and testAccounts=false. Keep all sessions/allowlist intact. Lucien access explicitly deferred.
 
@@ -31,7 +43,7 @@ Neon project billowing-lake-52144871; database takes_over. Playable br-summer-vo
 
 ## Remaining scope — not full old-game parity
 
-Staff/upkeep, timed item modifiers, proposed diminishing-return proficiency refinement, richer moderation/blocking and mailbox pagination, legacy Floot recovery/import and broader balance/load work remain. Public forums and broader club statistics/find-manager tools are backlog. Optional Club Games/physio/discipline are not implemented and have no fake routes. No claim of exact Bootleggers internals or full Floot parity.
+Staff/upkeep, timed item modifiers, richer moderation/blocking and mailbox pagination, legacy Floot recovery/import and broader balance/load work remain. Broader forum moderation/history and club statistics/find-manager tools remain backlog. Optional Club Games/physio/discipline are not implemented and have no fake routes. No claim of exact Bootleggers internals or full Floot parity.
 
 ## Deployment and recovery
 

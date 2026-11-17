@@ -15,4 +15,7 @@ export const empireActions = [
   "readyVenture",
   "cancelVenture",
   "resolveVenture",
+  "soloVenture",
+  "boardPost",
+  "removeBoardPost",
 ];

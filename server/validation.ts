@@ -116,6 +116,26 @@ export function validateAction(data: unknown) {
   if (kind === "sendMessage" && !uuid(input.target))
     throw new GameError("Choose another manager");
   if (
+    kind === "soloVenture" &&
+    (!Array.isArray(input.players) ||
+      input.players.length !== 3 ||
+      new Set(input.players).size !== 3 ||
+      !input.players.every(uuid))
+  )
+    throw new GameError("Choose three different owned players");
+  if (kind === "removeBoardPost" && !uuid(input.id))
+    throw new GameError("Invalid board post");
+  if (kind === "boardPost") {
+    text(input.body, 1, 1000, "Post");
+    if (input.parent) {
+      if (!uuid(input.parent)) throw new GameError("Invalid topic");
+    } else {
+      text(input.title, 2, 80, "Title");
+      if (!["chat", "questions", "ventures"].includes(String(input.category)))
+        throw new GameError("Choose a board category");
+    }
+  }
+  if (
     kind === "claimDaily" &&
     !["shift", "savings", "profit"].includes(String(input.id))
   )

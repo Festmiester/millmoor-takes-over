@@ -98,6 +98,7 @@ await check(
       (await state(b)).trade.goods.find((g: any) => g.id === "scarves").owned,
       0,
     );
+    await sql`UPDATE mto_players SET cooldowns=jsonb_set(cooldowns,'{trade}',to_jsonb(now()+interval '1 minute')) WHERE id=${a}::uuid`;
     await assert.rejects(
       act(a, "sellGoods", { id: "scarves", quantity: 5 }),
       /cooling down/,
@@ -168,9 +169,10 @@ await check(
 );
 let vid: string;
 await check(
-  "joint ventures require membership, two participants and explicit readiness",
+  "joint ventures require rank, two participants and explicit readiness",
   async () => {
-    await assert.rejects(act(c, "createVenture"), /Join an alliance/);
+    await sql`UPDATE mto_players SET xp=0 WHERE id=${c}::uuid`;
+    await assert.rejects(act(c, "createVenture"), /Thug/);
     await act(a, "createVenture");
     vid = (await state(a)).ventures.find((v: any) => v.status === "open").id;
     await assert.rejects(act(a, "joinVenture", { id: vid }), /participants/);
@@ -221,9 +223,9 @@ await check(
       await sql`SELECT id,cash,xp,energy,cooldowns FROM mto_players WHERE id IN (${a}::uuid,${b}::uuid)`;
     for (const p of after) {
       const old = before.find((x) => x.id === p.id)!;
-      assert.equal(Number(p.cash) - Number(old.cash), r.success ? 320 : -80);
-      assert.equal(Number(p.xp) - Number(old.xp), r.success ? 550 : 25);
-      assert.equal(p.energy, old.energy - 10);
+      assert.equal(Number(p.cash) - Number(old.cash), r.success ? 7500 : -500);
+      assert.equal(Number(p.xp) - Number(old.xp), r.success ? 1500 : 100);
+      assert.equal(p.energy, old.energy - 20);
       assert.ok(p.cooldowns.venture);
     }
     assert.equal(

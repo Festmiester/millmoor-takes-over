@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-17 — stamina, OC-style pacing and local community
+- Increased base stamina to 200, regeneration to five/30s and fitness capacity ceiling to 300.
+- Rebalanced ventures to eight hours with £8,000 gross human and £4,500 squad success payouts; added three-owned-player solo runs and transferable asset fatigue.
+- Added public local venture rooms, local whiteboard, Questions and Venture Classifieds with replies/removal/limits.
+- Preserved earned legacy proficiency and added diminishing practice from successful/failed completed attempts.
+- Repaired negative fresh office cash expectations and connected all training attributes to real effects.
+- Added migrations 011–014 and expanded verification; no account/asset reset or registration change.
+
 ## 2026-11-17 — persistent empire and multiplayer
 - Added businesses, offline income, five upgrade levels and collection.
 - Added regional merchandise quotes, stock ownership, buys/sales and trade timer.

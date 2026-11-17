@@ -8,7 +8,12 @@ import type {
   GameEvent,
   Asset,
 } from "./types";
-import { quoteActivity, rarityClass, sortSquad } from "./game-view";
+import {
+  quoteActivity,
+  rarityClass,
+  sortSquad,
+  staminaState,
+} from "./game-view";
 import {
   empirePages,
   renderEmpire,
@@ -110,7 +115,13 @@ const groups = [
       ["trading", "Merchandise Trading"],
     ],
   },
-  { name: "Messaging", links: [["mail", "Manager Mail"]] },
+  {
+    name: "Messaging",
+    links: [
+      ["board", "Community Board"],
+      ["mail", "Manager Mail"],
+    ],
+  },
 ];
 const chapters = [
   "First Boots on the Ground",
@@ -206,7 +217,7 @@ function notices() {
 }
 function resultPopup() {
   return lastResult
-    ? `<div role="status" class="result ${lastResult.success ? "success" : "failure"}"><span class="result-icon">${lastResult.success ? "✓" : "!"}</span><div><strong>${lastResult.acquiredPlayer ? "New player signed" : lastResult.success ? "Good business" : "A setback"}</strong><p>${esc(lastResult.message)}</p><div class="outcome-facts"><span class="${lastResult.cashDelta >= 0 ? "positive" : "negative"}">Net ${lastResult.cashDelta >= 0 ? "+" : "−"}${money(Math.abs(lastResult.cashDelta))}</span>${lastResult.energySpent ? `<span>−${lastResult.energySpent} energy</span>` : ""}${lastResult.promotedTo ? `<strong>★ Promoted to ${esc(lastResult.promotedTo)}</strong>` : ""}</div>${lastResult.acquiredPlayer ? `<div class="signing-card">${playerSummary(lastResult.acquiredPlayer)}<a href="#squad">View squad →</a></div>` : ""}</div><button class="dismiss" data-dismiss aria-label="Dismiss result">×</button></div>`
+    ? `<div role="status" class="result ${lastResult.success ? "success" : "failure"}"><span class="result-icon">${lastResult.success ? "✓" : "!"}</span><div><strong>${lastResult.acquiredPlayer ? "New player signed" : lastResult.success ? "Good business" : "A setback"}</strong><p>${esc(lastResult.message)}</p><div class="outcome-facts"><span class="${lastResult.cashDelta >= 0 ? "positive" : "negative"}">Net ${lastResult.cashDelta >= 0 ? "+" : "−"}${money(Math.abs(lastResult.cashDelta))}</span>${lastResult.energySpent ? `<span>−${lastResult.energySpent} stamina</span>` : ""}${lastResult.promotedTo ? `<strong>★ Promoted to ${esc(lastResult.promotedTo)}</strong>` : ""}</div>${lastResult.acquiredPlayer ? `<div class="signing-card">${playerSummary(lastResult.acquiredPlayer)}<a href="#squad">View squad →</a></div>` : ""}</div><button class="dismiss" data-dismiss aria-label="Dismiss result">×</button></div>`
     : "";
 }
 function section(title: string, content: string, sub = "") {
@@ -217,7 +228,7 @@ function banner(eyebrow: string, title: string, sub: string) {
 }
 function header() {
   const p = player!;
-  return `<header class="topbar"><a class="brand" href="#office"><img src="/crest.svg" alt="Millmoor Takes Over crest"><span>MILLMOOR<small>TAKES OVER</small></span></a><button class="manager-chip" data-character aria-label="Open character"><img class="avatar character-avatar" src="/manager-portrait.webp" alt="Your manager character"><span><strong>${esc(p.club)}</strong><small>${esc(p.rankName)} · ${esc(p.region)}</small></span></button><div class="header-money"><small>ON HAND</small><strong data-cash>${money(p.cash)}</strong></div><div class="header-energy"><span><small>ENERGY</small><b data-energy>${p.energy} / 100</b></span><progress max="100" value="${p.energy}" aria-label="Energy"></progress><small class="energy-recovery" data-energy-next></small></div><button class="menu-button" data-menu aria-expanded="${menuOpen}">☰ <span>Menu</span></button></header>`;
+  return `<header class="topbar"><a class="brand" href="#office"><img src="/crest.svg" alt="Millmoor Takes Over crest"><span>MILLMOOR<small>TAKES OVER</small></span></a><button class="manager-chip" data-character aria-label="Open character"><img class="avatar character-avatar" src="/manager-portrait.webp" alt="Your manager character"><span><strong>${esc(p.club)}</strong><small>${esc(p.rankName)} · ${esc(p.region)}</small></span></button><div class="header-money"><small>ON HAND</small><strong data-cash>${money(p.cash)}</strong></div><div class="header-energy"><span><small>STAMINA</small><b data-energy>${p.energy} / ${p.energyMax || 100}</b></span><progress max="${p.energyMax || 100}" value="${p.energy}" aria-label="Stamina"></progress><small class="energy-recovery" data-energy-next></small></div><button class="menu-button" data-menu aria-expanded="${menuOpen}">☰ <span>Menu</span></button></header>`;
 }
 function rail() {
   const p = player!;
@@ -423,7 +434,7 @@ function content() {
           Object.entries(p.attributes)
             .map(
               ([stat, val]) =>
-                `<div class="simple-row"><div><strong class="capitalize">${stat}</strong><p class="muted small">£20 · 10 energy · 60s shared training cooldown</p></div><span class="attribute">${val}</span>${p.rank < 1 ? lock(1) : actionButton("train", stat, "Train", !!seconds("training") || p.energy < 10 || p.cash < 20, "training")}</div>`,
+                `<div class="simple-row"><div><strong class="capitalize">${stat}</strong><p class="muted small">£20 · 10 stamina · 60s shared training cooldown</p><p class="muted small">${stat === "fitness" ? "+5 stamina capacity per level (up to 300), plus +1 club power per four levels" : stat === "focus" ? "+1 club power per level; +1 activity chance per four levels (up to +5)" : stat === "resilience" ? "+2 club power per level" : "+1 club power per level"}</p></div><span class="attribute">${val}</span>${p.rank < 1 ? lock(1) : actionButton("train", stat, "Train", !!seconds("training") || p.energy < 10 || p.cash < 20, "training")}</div>`,
             )
             .join(""),
         )
@@ -539,7 +550,7 @@ function content() {
         ) +
         section(
           "GETTING STARTED",
-          `<div class="guide"><h3>01 / Make a name</h3><p>Every manager starts as Scum with £250 and 100 energy. Deliver Flyers and Community Coaching are your two starter activities. Success brings cash, improves proficiency and builds your reputation.</p><h3>02 / Choose your approach</h3><p>Safe adds 10 points to your chance but pays 20% less. Bold removes 10 points but pays 30% more. Steady keeps the base odds. No approach guarantees success.</p><h3>03 / Keep things moving</h3><p>Each activity has its own persistent timer. Energy recovers by 2 each minute, including while you are away. You never need to keep the tab open.</p><h3>04 / Earn your rank</h3><p>Successful actions build hidden progress. Harder actions count for more. Your rank appears when you earn it; there is no progress counter or percentage. The early ranks open scouting, recruitment, training and rival challenges.</p><h3>05 / Own your assets</h3><p>Successful scouting and recruitment can sign original players. Keep them, release them to the game or list them for another manager. Equipment affects club power only while equipped. One item per slot.</p><h3>06 / The test world</h3><p>All balances are fictional. No deposits of real money, paid gold or cash prizes. Test accounts stay in this browser until connected to Google. This world is independent of the Millmoor Juniors app.</p></div>`,
+          `<div class="guide"><h3>01 / Make a name</h3><p>Every manager starts as Scum with £250 and 200 stamina. Deliver Flyers and Community Coaching are your two starter activities. Success brings cash, improves proficiency and builds your reputation.</p><h3>02 / Choose your approach</h3><p>Safe adds 10 points to your chance but pays 20% less. Bold removes 10 points but pays 30% more. Steady keeps the base odds. No approach guarantees success.</p><h3>03 / Keep things moving</h3><p>Each activity has its own persistent timer. Stamina recovers by 5 every 30 seconds, including while you are away. Fitness training adds 5 capacity per level up to 300. You never need to keep the tab open.</p><h3>04 / Earn your rank</h3><p>Successful actions build hidden progress. Harder actions count for more. Your rank appears when you earn it; there is no progress counter or percentage. The early ranks open scouting, recruitment, training and rival challenges.</p><h3>05 / Own your assets</h3><p>Successful scouting and recruitment can sign original players. Keep them, release them to the game or list them for another manager. Equipment affects club power only while equipped. One item per slot.</p><h3>06 / The test world</h3><p>All balances are fictional. No deposits of real money, paid gold or cash prizes. Test accounts stay in this browser until connected to Google. This world is independent of the Millmoor Juniors app.</p></div>`,
         ) +
         section(
           "THE RANKS",
@@ -571,7 +582,7 @@ function activityRows(rows: Activity[]) {
             ] as const)
           : null;
         const total = weights?.reduce((n, [, w]) => n + w, 0) || 1;
-        return `<article class="activity-row ${locked ? "locked" : ""}"><div class="activity-icon" aria-hidden="true">${a.asset ? "⌕" : a.id === "flyers" ? "▧" : a.id === "coaching" ? "⚑" : "▤"}</div><div class="activity-copy"><div class="activity-title"><h3>${esc(a.title)}</h3>${a.asset ? '<span class="chip">PLAYER ASSET</span>' : ""}</div><div class="activity-meta"><span>◷ ${duration(a.seconds)}</span><span>ϟ ${a.energy} energy</span><span>Outlay ${money(a.cost)}</span></div>${!locked ? `<div class="activity-reward">Net on success <b>${q.net >= 0 ? "+" : ""}${money(q.net)}</b> · ${q.chance}% chance</div><details class="activity-details"><summary>Details & odds</summary><p>${esc(a.description)}</p><div class="ratings"><span>Success <b>${q.chance}%</b><meter min="0" max="100" value="${q.chance}" aria-label="Success chance"></meter></span><span>Net on success <b>${q.net >= 0 ? "+" : ""}${money(q.net)}</b></span><span>Avg cash <b class="${q.expected >= 0 ? "positive" : "negative"}">${q.expected >= 0 ? "+" : ""}${money(q.expected)}</b></span></div><p class="small muted">Payout ${money(q.gross)} · Average excludes player value; success is not guaranteed.</p>${weights ? `<div class="rarity-odds">${weights.map(([r, w]) => `<span class="rarity ${rarityClass(r)}">${r} ${((100 * w) / total).toFixed(1)}%</span>`).join("")}</div><p class="small muted">Power ${profile!.minPower}–${profile!.maxPower} · Odds apply after a successful signing.</p>` : ""}</details>` : ""}</div><div class="activity-action">${locked ? lock(a.rankRequired) : actionButton("activity", a.id, "Commit", full || !!seconds(a.id) || p.cash < a.cost || p.energy < a.energy, a.id)}</div></article>`;
+        return `<article class="activity-row ${locked ? "locked" : ""}"><div class="activity-icon" aria-hidden="true">${a.asset ? "⌕" : a.id === "flyers" ? "▧" : a.id === "coaching" ? "⚑" : "▤"}</div><div class="activity-copy"><div class="activity-title"><h3>${esc(a.title)}</h3>${a.asset ? '<span class="chip">PLAYER ASSET</span>' : ""}</div><div class="activity-meta"><span>◷ ${duration(a.seconds)}</span><span>ϟ ${a.energy} stamina</span><span>Outlay ${money(a.cost)}</span></div>${!locked ? `<div class="activity-reward">Net on success <b>${q.net >= 0 ? "+" : ""}${money(q.net)}</b> · ${q.chance}% chance</div><details class="activity-details"><summary>Details & odds</summary><p>${esc(a.description)}</p><div class="ratings"><span>Success <b>${q.chance}%</b><meter min="0" max="100" value="${q.chance}" aria-label="Success chance"></meter></span><span>Net on success <b>${q.net >= 0 ? "+" : ""}${money(q.net)}</b></span><span>Avg cash <b class="${q.expected >= 0 ? "positive" : "negative"}">${q.expected >= 0 ? "+" : ""}${money(q.expected)}</b></span></div><p class="small muted">Payout ${money(q.gross)} · Average excludes player value; success is not guaranteed.</p>${weights ? `<div class="rarity-odds">${weights.map(([r, w]) => `<span class="rarity ${rarityClass(r)}">${r} ${((100 * w) / total).toFixed(1)}%</span>`).join("")}</div><p class="small muted">Power ${profile!.minPower}–${profile!.maxPower} · Odds apply after a successful signing.</p>` : ""}</details>` : ""}</div><div class="activity-action">${locked ? lock(a.rankRequired) : actionButton("activity", a.id, "Commit", full || !!seconds(a.id) || p.cash < a.cost || p.energy < a.energy, a.id)}</div></article>`;
       })
       .join("") || '<p class="empty">No contacts in this tier.</p>'
   );
@@ -926,6 +937,9 @@ app.addEventListener("submit", async (e) => {
       await act(kind, "", {
         ...fields,
         ...(fields.quantity ? { quantity: Number(fields.quantity) } : {}),
+        ...(kind === "soloVenture"
+          ? { players: [fields.player1, fields.player2, fields.player3] }
+          : {}),
       });
     } else if (form.id === "profile") {
       await api("/api/profile", fields);
@@ -979,13 +993,16 @@ function updateTimers() {
     0,
     Math.floor((Date.now() + offset - Date.parse(player.energyAt)) / 1000),
   );
-  const energy = Math.min(100, player.energy + Math.floor(elapsed / 60) * 2);
+  const stamina = staminaState(player, Date.now() + offset);
+  const energy = stamina.current;
   document
     .querySelectorAll("[data-energy-next]")
     .forEach(
       (el) =>
         (el.textContent =
-          energy === 100 ? "Full energy" : `+2 in ${60 - (elapsed % 60)}s`),
+          energy === stamina.capacity
+            ? "Full stamina"
+            : `+${stamina.regen} in ${stamina.next}s`),
     );
   const reset = document.querySelector<HTMLElement>("[data-daily-reset]");
   if (reset) {
@@ -1000,7 +1017,10 @@ function updateTimers() {
       : "New assignments ready — refresh";
   }
   const bar = document.querySelector<HTMLProgressElement>("header progress");
-  if (bar) bar.value = energy;
+  if (bar) {
+    bar.max = stamina.capacity;
+    bar.value = energy;
+  }
   document
     .querySelectorAll<HTMLButtonElement>("[data-cooldown]")
     .forEach((b) => {
@@ -1016,7 +1036,7 @@ function updateTimers() {
         : full
           ? "Squad full"
           : a && energy < a.energy
-            ? "Need " + a.energy + " energy"
+            ? "Need " + a.energy + " stamina"
             : a && player!.cash < a.cost
               ? "Need " + money(a.cost)
               : b.dataset.label!;
@@ -1042,7 +1062,7 @@ function updateTimers() {
     .forEach((el) => (el.textContent = money(player!.bank)));
   document
     .querySelectorAll("[data-energy]")
-    .forEach((el) => (el.textContent = `${energy} / 100`));
+    .forEach((el) => (el.textContent = `${energy} / ${stamina.capacity}`));
 }
 setInterval(updateTimers, 1000);
 setInterval(async () => {
@@ -1052,6 +1072,7 @@ setInterval(async () => {
     if (
       empirePages.includes(page) &&
       !document.querySelector("dialog[open]") &&
+      !document.querySelector(".board-topic[open]") &&
       !document.activeElement?.matches("input,select,textarea")
     ) {
       empire = await api("/api/empire");

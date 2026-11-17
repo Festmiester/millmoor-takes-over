@@ -1,5 +1,11 @@
 # Deployment and operations
 
+## Latest pacing release
+
+Deployment `014dcd68c97e4521b9ca1bf5ebd311b8`. Migrations 011–014 committed together on the playable branch through the Neon connector after verification. Existing player cash/ranks/rosters untouched; waiting readiness intentionally cleared because costs changed. Capacity constraint widened to 300, without a stamina refill/reset. Google secrets and owner allowlist preserved, signup remains false.
+
+118 assertion/workflow groups passed across unit, API, old/new database and client suites plus asset checks; the final three pacing groups used tests/pacing-final.sql via the Neon connector after host egress failed. Build and Worker dry-run pass. See PROJECT_STATUS.md for precise counts and native-visual limits. Legacy Worker-only rollback can show stale stamina/venture terms against the new database: prefer a reviewed corrective release preserving current rules/data. Never drop players, posts, practice or duty rows to roll back.
+
 ## Current — 17 November 2026
 
 Deployment `cacb984315c442f8bf33a0947e853239`: persistent empire/multiplayer. Migrations 009–010 applied to verification and playable branches. Migration 009 source recovered from previously verified database definitions; migration runner skips recorded versions. No live fixture accounts created.
