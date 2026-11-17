@@ -101,6 +101,18 @@ test("display names reject markup and controls", () => {
   assert.throws(() => text("a\nname", 2, 24, "Name"));
   assert.equal(text(" Kurt ", 2, 24, "Name"), "Kurt");
 });
+test("guided chapter rewards require a valid explicit chapter", () => {
+  assert.throws(() => validateAction({ key, kind: "chapter", input: {} }));
+  assert.throws(() =>
+    validateAction({ key, kind: "chapter", input: { id: "19" } }),
+  );
+  assert.throws(() =>
+    validateAction({ key, kind: "claimCampaignPlayer", input: { id: "-1" } }),
+  );
+  assert.doesNotThrow(() =>
+    validateAction({ key, kind: "chapter", input: { id: "18" } }),
+  );
+});
 test("squad and board inputs reject duplicate identities, markup and malformed threads", () => {
   assert.throws(() =>
     validateAction({

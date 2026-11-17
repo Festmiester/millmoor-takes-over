@@ -46,6 +46,7 @@ let sessionA = "",
   sessionB = "";
 await check("anonymous accounts cannot read saved state", async () => {
   assert.equal((await call("/api/state")).status, 401);
+  assert.equal((await call("/api/campaign")).status, 401);
 });
 await check("cross-origin account creation is rejected", async () => {
   assert.equal(

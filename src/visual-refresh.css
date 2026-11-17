@@ -1130,6 +1130,49 @@ td {
 }
 
 /* Shared compact world features; existing palette and navigation retained. */
+.campaign-lesson {
+  padding: 9px 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.campaign-goal {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+.campaign-goal > div {
+  flex: 1;
+  min-width: 0;
+}
+.campaign-goal small {
+  display: block;
+  color: var(--muted);
+  margin: 4px 0;
+  font-size: 11px;
+}
+.campaign-goal progress {
+  width: 100%;
+  height: 5px;
+  accent-color: #c9a25a;
+}
+.campaign-rewards {
+  display: flex;
+  gap: 5px 12px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  background: #241d13;
+  font-size: 12px;
+  color: #dfbd79;
+}
+.next-chapter small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
 .board-topic {
   border-bottom: 1px solid var(--line);
   padding: 10px 12px;

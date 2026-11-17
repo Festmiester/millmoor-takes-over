@@ -57,6 +57,7 @@ export function validateAction(data: unknown) {
     "upgrade",
     "travel",
     "chapter",
+    "claimCampaignPlayer",
     "sellPlayer",
     "listPlayer",
     "buyListing",
@@ -69,6 +70,11 @@ export function validateAction(data: unknown) {
     d.input && typeof d.input === "object"
       ? (d.input as Record<string, unknown>)
       : {};
+  if (
+    ["chapter", "claimCampaignPlayer"].includes(kind) &&
+    !/^(?:[1-9]|1[0-8])$/.test(String(input.id))
+  )
+    throw new GameError("Choose a guided campaign chapter");
   if (
     ["deposit", "withdraw", "listPlayer"].includes(kind) &&
     (!Number.isSafeInteger(input.amount) ||

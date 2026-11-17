@@ -88,7 +88,10 @@ check("beginner office renders exactly two working activity buttons", () => {
 check(
   "header persists cash, rank and energy with no hidden progression leak",
   () => {
-    assert.match(d.querySelector("header")!.textContent!, /Scum/);
+    assert.match(
+      d.querySelector("header")!.textContent!,
+      /Sunday League Dreamer/,
+    );
     assert.match(d.querySelector("header")!.textContent!, /£250/);
     assert.doesNotMatch(d.body.textContent!, /\bXP\b|\bExperience\b|750,000/);
   },
@@ -96,7 +99,7 @@ check(
 check("higher office tiers show rank locks instead of enabled actions", () => {
   (d.querySelector('[data-tier="2"]') as HTMLElement).click();
   assert.equal(d.querySelectorAll('[data-action="activity"]').length, 0);
-  assert.match(d.querySelector(".activity-row")!.textContent!, /Pee Wee/);
+  assert.match(d.querySelector(".activity-row")!.textContent!, /Grassroots Manager/);
   (d.querySelector('[data-tier="1"]') as HTMLElement).click();
 });
 check("activity cards distinguish outlay, net payout and expected cash", () => {
@@ -134,7 +137,7 @@ check("action results are modal popups outside page content", () => {
   );
   assert.equal(d.querySelector("#content .result"), null);
   assert.ok(d.querySelector(".activity-details summary"));
-  assert.ok(d.querySelector('[aria-label="Chapter successful moves"]'));
+  assert.ok(d.querySelector('.next-chapter a[href="#campaign"]'));
 });
 check(
   "clicking an activity receives a saved server result and a live cooldown",
@@ -216,7 +219,7 @@ for (const route of process.argv.includes("--quick")
             scouting: "Talent Scouts",
             daily: "Daily Assignments",
             businesses: "Club Businesses",
-            trading: "Merchandise Trading",
+            trading: "Merchandise Runs",
             alliance: "Alliances",
             ventures: "Joint Ventures",
             mail: "Manager Mail",
@@ -253,7 +256,7 @@ for (const route of process.argv.includes("--quick")
 }
 check("mobile categories open a compact destination menu", () => {
   d.querySelector<HTMLButtonElement>('[data-category="Campaign"]')!.click();
-  assert.equal(d.querySelectorAll(".submenu-links a").length, 10);
+  assert.equal(d.querySelectorAll(".submenu-links a").length, 11);
   d.querySelector<HTMLButtonElement>("[data-category-back]")!.click();
   assert.equal(d.querySelector(".mobile-submenu"), null);
 });

@@ -18,6 +18,7 @@
     "test:empire-client": "node --import tsx scripts/empire-client-smoke.ts",
     "test:scouting": "node --import tsx scripts/scouting-smoke.ts",
     "test:client": "node --import tsx scripts/client-smoke.ts",
+    "test:campaign-client": "node --import tsx scripts/campaign-client-smoke.ts",
     "migrate": "node --import tsx scripts/migrate.ts"
   },
   "dependencies": {

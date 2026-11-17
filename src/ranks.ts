@@ -1,0 +1,15 @@
+export const footballRanks = [
+  "Sunday League Dreamer",
+  "Grassroots Manager",
+  "Local Gaffer",
+  "Non-League Boss",
+  "Semi-Pro Manager",
+  "Professional Manager",
+  "League Manager",
+  "Promotion Specialist",
+  "Championship Contender",
+  "Premier League Manager",
+  "Title Challenger",
+  "European Elite",
+  "Football Legend",
+];

@@ -2,7 +2,17 @@
 
 Updated 17 November 2026. Read this first, alongside the permanent reference and comparison workbook.
 
-## Current live release — stamina, squad operations and boards
+## Current live release — guided campaign and football ranks
+
+Deployment `79cf3d617e104f68a7e8bb0ae461b4b5`. Migrations 1–18 applied on verification and playable branches. Road to Legend is now an 18-lesson tutorial with server-validated objectives, direct links to screens/tiers, real equipment/player/cash rewards and a compact roadmap. See GUIDED_CAMPAIGN.md. Campaign v2 claims are separate from legacy p.chapter: the owner's six legacy chapters, rewards, cash, rank progress and squad are not reset. Historical events/state credit objectives where provable; two approaches need new audited actions because old events did not record approach reliably.
+
+Football rank names replace all 13 criminal labels; numeric rank IDs, thresholds and unlocks are unchanged. The owner's current title is Local Gaffer. Merchandise Trading is prominently placed in Campaign as Merchandise Runs, with a bootlegging guide and four-town quotes/20-unit loaded-trip estimates. Trades remain server-priced and location-bound.
+
+Chapter rewards never grant hidden rank progress. Existing equipment gives transparent cash compensation; new gear arrives unequipped. Full squads reserve player rewards without discarding assets; reserved players can be collected later under the 30-owned limit. Exclusive endgame items are excluded from shop catalog. Rewards/approach auditing are protected against duplicate/concurrent requests and forged legacy receipt replays.
+
+Validation: 16 unit/render checks, 41 client route/workflow checks, 15 API checks, three new full campaign client workflows, comprehensive tests/campaign-integration.sql assertions, concurrent-claim and forged-legacy-replay checks passed. Original integration: first 13 passed in-script; the final minute-window rate assertion crossed a real minute boundary and passed separately in a fixed database transaction. Source test now uses one transaction. Build, asset checks and Worker dry-run pass. Live check confirms campaign v2/18 lessons, football rank and six retained legacy chapters. No new paid service or signup/access changes.
+
+## Previous pacing release — stamina, squad operations and boards
 
 Deployment `014dcd68c97e4521b9ca1bf5ebd311b8`. Migrations 1–14 applied to verification and playable branches. Full balance rationale, source links and rules: PACING_REVIEW.md.
 

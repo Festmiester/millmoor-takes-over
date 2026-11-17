@@ -37,6 +37,7 @@ export interface Player {
   wins: number;
   actions: number;
   chapter: number;
+  campaignCompleted?: number;
   facility: number;
   power: number;
 }

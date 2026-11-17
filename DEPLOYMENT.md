@@ -1,5 +1,11 @@
 # Deployment and operations
 
+## Latest guided campaign release
+
+Deployment `79cf3d617e104f68a7e8bb0ae461b4b5`; migrations 015–018 applied atomically to playable after verification. New tutorial records are additive; owner legacy chapter counter remains six. Rank labels change but thresholds, cash, inventory, squad and unlocks do not reset. Existing Google/allowlist secrets retained; test signup false.
+
+Verification: 16 unit/render, 41 existing client, 15 API, three campaign client flows, comprehensive SQL reward/capacity/order/legacy/endgame assertions, concurrent claims and forged-receipt audit. First 13 original integration tests passed; rate-limit boundary assertion was made transaction-stable and verified via connector. Build, Worker dry-run and binary asset checks pass. No synthetic live claims/rewards or account reset. Current browser remains signed out; protected flows were exercised through real verification client/Worker/database.
+
 ## Latest pacing release
 
 Deployment `014dcd68c97e4521b9ca1bf5ebd311b8`. Migrations 011–014 committed together on the playable branch through the Neon connector after verification. Existing player cash/ranks/rosters untouched; waiting readiness intentionally cleared because costs changed. Capacity constraint widened to 300, without a stamina refill/reset. Google secrets and owner allowlist preserved, signup remains false.

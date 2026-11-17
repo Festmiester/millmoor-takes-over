@@ -172,7 +172,7 @@ await check(
   "joint ventures require rank, two participants and explicit readiness",
   async () => {
     await sql`UPDATE mto_players SET xp=0 WHERE id=${c}::uuid`;
-    await assert.rejects(act(c, "createVenture"), /Thug/);
+    await assert.rejects(act(c, "createVenture"), /Local Gaffer/);
     await act(a, "createVenture");
     vid = (await state(a)).ventures.find((v: any) => v.status === "open").id;
     await assert.rejects(act(a, "joinVenture", { id: vid }), /participants/);

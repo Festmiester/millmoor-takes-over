@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-17 — guided Road to Legend and football ranks
+- Replaced repetitive chapter win-count rewards with 18 real tutorial lessons and objective links.
+- Added useful equipment, unique player rewards, endgame exclusive gear and safe reserved-player collection at capacity.
+- Preserved all legacy chapter rewards, account assets and hidden rank progress; no reset.
+- Replaced 13 gangster rank names with football titles while retaining IDs/thresholds/unlocks.
+- Moved Merchandise Runs into Campaign and added a bootlegging route/price guide.
+- Added claim/metadata replay protection, concurrency checks and migrations 015–018.
+
 ## 2026-11-17 — stamina, OC-style pacing and local community
 - Increased base stamina to 200, regeneration to five/30s and fitness capacity ceiling to 300.
 - Rebalanced ventures to eight hours with £8,000 gross human and £4,500 squad success payouts; added three-owned-player solo runs and transferable asset fatigue.

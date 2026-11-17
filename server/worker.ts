@@ -114,7 +114,7 @@ async function handle(r: Request, env: Env) {
     const results = await sql.transaction([
       sql`SELECT id,name FROM mto_ranks ORDER BY id`,
       sql`SELECT id,title,description,category,tier,rank_required AS "rankRequired",cost,reward,energy,seconds,chance,asset FROM mto_activities ORDER BY rank_required,tier,id`,
-      sql`SELECT id,title,slot,price,power,rank_required AS "rankRequired",description FROM mto_items ORDER BY price`,
+      sql`SELECT id,title,slot,price,power,rank_required AS "rankRequired",description FROM mto_items WHERE NOT campaign_only ORDER BY price`,
       sql`SELECT t,mto_scout_profile(t) AS profile FROM generate_series(1,5)t`,
     ]);
     return json({
@@ -293,7 +293,14 @@ async function handle(r: Request, env: Env) {
   }
   if (path === "/api/empire" && r.method === "GET") {
     const rows = await sql`SELECT mto_empire_status(${pid}::uuid) AS empire`;
-    return json(rows[0].empire);
+    const routes =
+      await sql`SELECT mto_merchandise_routes(${pid}::uuid) AS routes`;
+    return json({ ...rows[0].empire, merchandiseRoutes: routes[0].routes });
+  }
+  if (path === "/api/campaign" && r.method === "GET") {
+    const rows =
+      await sql`SELECT mto_campaign_status(${pid}::uuid) AS campaign`;
+    return json(rows[0].campaign);
   }
   if (path === "/api/daily" && r.method === "GET") {
     const rows = await sql`SELECT mto_daily(${pid}::uuid) AS daily`;

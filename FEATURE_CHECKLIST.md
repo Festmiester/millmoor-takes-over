@@ -1,5 +1,9 @@
 # Feature checklist — all 48 recovered comparison rows
 
+## Current campaign/rank completion
+
+Road to Legend is now a guided 18-chapter tutorial, not repeated win counts. Each chapter has actual criteria, required football rank, navigation and functional rewards. Early gear and players teach equipment/scouting; later lessons cover runs, businesses, escrow and ventures; exclusive endgame rewards have real power. Existing legacy rewards/progress are preserved. Capacity reservations, duplicate compensation, idempotency, chapter order and rank gates are tested. Merchandise Runs is the discoverable bootlegging analogue with town comparisons. Football rank names replace the original criminal names without changing progression or unlock IDs. See GUIDED_CAMPAIGN.md and PROJECT_STATUS.md; old chapter/rank comparison rows below are historical.
+
 ## Current pacing and community completion
 
 Local whiteboard/forums/classifieds and threaded replies are implemented, with location/authorship checks and posting limits. Solo ventures use real owned players with eight-hour fatigue; human ventures use explicit readiness, location checks and an eight-hour shared timer. Stamina capacity/recovery are server-driven and fitness-sensitive. Diminishing proficiency is now implemented; failed attempts add practice rather than reducing odds. Advanced office cash expectations and training benefits were checked. See PACING_REVIEW.md and PROJECT_STATUS.md for exact validation and remaining optional scope. Older pending-board/proficiency rows are superseded.

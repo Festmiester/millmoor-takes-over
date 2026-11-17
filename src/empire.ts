@@ -1,4 +1,5 @@
 import type { Player, World } from "./types";
+import { footballRanks } from "./ranks";
 import { staminaState } from "./game-view";
 export const empirePages = [
   "businesses",
@@ -81,6 +82,11 @@ export interface EmpireState {
   messages: Message[];
   ventures: Venture[];
   board?: BoardPost[];
+  merchandiseRoutes?: {
+    id: string;
+    title: string;
+    markets: { region: string; buy: number; sell: number }[];
+  }[];
   crewDuties?: { id: string; availableAt: string }[];
 }
 const esc = (v: unknown) =>
@@ -96,9 +102,7 @@ const section = (title: string, body: string) =>
   `<section class="panel"><div class="panel-title"><h2>${title}</h2></div>${body}</section>`;
 const button = (kind: string, id: string, label: string, disabled = false) =>
   `<button class="action" data-action="${kind}" data-id="${esc(id)}" ${disabled ? "disabled" : ""}>${esc(label)}</button>`;
-const rank = (n: number) =>
-  ["Scum", "Pee Wee", "Thug", "Gangster", "Hitman", "Assassin"][n] ||
-  "Higher rank";
+const rank = (n: number) => footballRanks[n] || "Higher rank";
 const heading = (title: string, sub: string) =>
   `<div class="page-heading"><h1>${title}</h1><p>${sub}</p></div>`;
 const note = (text: string) => `<p class="empire-rules">${text}</p>`;
@@ -138,7 +142,7 @@ export function renderEmpire(
   if (page === "trading")
     return (
       heading(
-        "Merchandise Trading",
+        "Merchandise Runs",
         "Find the margin. Move stock between football towns.",
       ) +
       section(
@@ -147,10 +151,28 @@ export function renderEmpire(
           `Buy/sell quotes change at 00:00 UTC. 3-pound dealer spread. Storage ${state.trade.goods.reduce((n, g) => n + g.owned, 0)} / ${state.trade.capacity}. Travel costs £50. Trading has a shared 15-second timer; no rank rewards.`,
         ) +
           `<p class="empire-rules" data-trade-timer></p>` +
+          (state.merchandiseRoutes
+            ? `<details class="board-topic"><summary>Bootlegging guide & town prices</summary><p>Buy stock here, carry it on the Transit Hub and sell in another town. Trade up to 20 units per action, store up to 100. Compare the dealer spread and £50 travel cost. Quotes reset at 00:00 UTC; getting to a source town may cost extra.</p>${state.merchandiseRoutes
+                .map(
+                  (g) =>
+                    `<h3>${esc(g.title)}</h3>${g.markets
+                      .map((m) => {
+                        const here = g.markets.find(
+                          (x) => x.region === p.region,
+                        )!;
+                        const net20 = 20 * (m.sell - here.buy) - 50;
+                        return `<div class="simple-row"><span>${esc(m.region)}${m.region === p.region ? " · You are here" : ""}<small>Buy ${money(m.buy)} · Sell ${money(m.sell)}</small></span><span>${m.region === p.region ? "" : `20-unit loaded trip net ${money(net20)}`}</span></div>`;
+                      })
+                      .join("")}`,
+                )
+                .join(
+                  "",
+                )}<p>Negative quotes mean that route is not worthwhile for that load today. Existing stock may have a different purchase cost.</p></details>`
+            : "") +
           state.trade.goods
             .map(
               (g) =>
-                `<article class="empire-row"><div><h3>${esc(g.title)}</h3><small>Buy ${money(g.buy)} · Sell ${money(g.sell)} · Owned ${g.owned}</small></div>${p.rank < 1 ? '<span class="lock">◇ Pee Wee</span>' : `<form class="trade-form" data-empire-kind="buyGoods"><input type="hidden" name="id" value="${g.id}"><label>Units<input name="quantity" type="number" min="1" max="20" value="1" required inputmode="numeric"></label><button class="action" name="tradeKind" value="buyGoods">Buy</button><button class="secondary" name="tradeKind" value="sellGoods" ${g.owned < 1 ? "disabled" : ""}>Sell</button></form>`}</article>`,
+                `<article class="empire-row"><div><h3>${esc(g.title)}</h3><small>Buy ${money(g.buy)} · Sell ${money(g.sell)} · Owned ${g.owned}</small></div>${p.rank < 1 ? '<span class="lock">◇ Grassroots Manager</span>' : `<form class="trade-form" data-empire-kind="buyGoods"><input type="hidden" name="id" value="${g.id}"><label>Units<input name="quantity" type="number" min="1" max="20" value="1" required inputmode="numeric"></label><button class="action" name="tradeKind" value="buyGoods">Buy</button><button class="secondary" name="tradeKind" value="sellGoods" ${g.owned < 1 ? "disabled" : ""}>Sell</button></form>`}</article>`,
             )
             .join("") +
           '<div class="simple-row"><a href="#travel">Travel to another market →</a></div>',
@@ -185,7 +207,7 @@ export function renderEmpire(
         : section(
             "FIND YOUR ALLIANCE",
             p.rank < 1
-              ? note("Alliances unlock at Pee Wee.")
+              ? note("Alliances unlock at Grassroots Manager.")
               : `<form class="compact-form" data-empire-kind="createAlliance"><label>New alliance name<input name="name" minlength="2" maxlength="32" required></label><button class="action" ${p.cash < 250 ? "disabled" : ""}>Found alliance · £250</button></form>` +
                   state.alliances
                     .map(
@@ -304,8 +326,8 @@ export function renderEmpire(
         note(
           "£500 entry · 20 stamina · £8,000 gross on success · 8-hour cooldown",
         ) +
-          '<details class="board-topic"><summary>Rules & odds</summary><p>Thug required. Both managers must be in the host location and mark ready. Each commits £500 and 20 stamina. Success pays £8,000 gross each (£7,500 net); failure loses the £500 entry. Combined power gives 65–90% success. Eight-hour shared venture cooldown. No alliance required for new public tournaments.</p></details>' +
-          `<div class="simple-row"><strong data-venture-clock>${label}</strong>${p.rank < 2 ? '<span class="lock">◇ Thug</span>' : button("createVenture", "", "Organise tournament", remaining > 0)}<a href="#board">Find a partner →</a></div>`,
+          '<details class="board-topic"><summary>Rules & odds</summary><p>Local Gaffer required. Both managers must be in the host location and mark ready. Each commits £500 and 20 stamina. Success pays £8,000 gross each (£7,500 net); failure loses the £500 entry. Combined power gives 65–90% success. Eight-hour shared venture cooldown. No alliance required for new public tournaments.</p></details>' +
+          `<div class="simple-row"><strong data-venture-clock>${label}</strong>${p.rank < 2 ? '<span class="lock">◇ Local Gaffer</span>' : button("createVenture", "", "Organise tournament", remaining > 0)}<a href="#board">Find a partner →</a></div>`,
       ) +
       section(
         "USE YOUR SCOUTED SQUAD",
@@ -314,7 +336,7 @@ export function renderEmpire(
         ) +
           '<details class="board-topic"><summary>Squad rules & odds</summary><p>Playing alone? Select three different owned, unlisted players. Entry £750 and 20 stamina. Success pays £4,500 gross (£3,750 net); chance is 55–85%, improved by their power and your facilities. The manager and selected players recover for eight hours. The same timer prevents swapping between solo and multiplayer ventures. Cancel a partnered waiting room first; an empty room closes automatically.</p></details>' +
           (p.rank < 2
-            ? note("Unlocks at Thug.")
+            ? note("Unlocks at Local Gaffer.")
             : p.squad.length < 3
               ? '<div class="simple-row"><span>Recruit three players first.</span><a href="#scouting">Talent Scouts →</a></div>'
               : `<form class="compact-form" data-empire-kind="soloVenture">${[1, 2, 3].map((i) => `<label>Squad role ${i}<select name="player${i}" required><option value="">Choose a player</option>${options}</select></label>`).join("")}<button class="action" data-solo-start ${remaining || p.cash < 750 || p.energy < 20 ? "disabled" : ""}>Run squad venture · £750</button></form>`),

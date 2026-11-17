@@ -1,5 +1,15 @@
 # Millmoor Takes Over — game specification
 
+## Current guided campaign and football progression
+
+Road to Legend v2 has 18 ordered chapters teaching real activities, bank, approaches/equipment, training, scouting/recruitment, merchandise bootlegging, travel, boards/alliances, transfer escrow, businesses, facilities, higher office/scouting tiers and ventures. Rank remains a separate gameplay gate; chapter claims do not award rank progress. See migrations 015–018 and GUIDED_CAMPAIGN.md for full criteria/rewards.
+
+Legacy chapter count and all previous assets/rewards are preserved. New claims have their own per-player/chapter uniqueness. Stored actions/state count retrospectively; distinct approach usage is audited on new real actions. Explicit current chapter ID, rank and every objective are checked by the server. One player lock and receipt ledger prevent repeated payouts. Gear duplicates convert to store-price cash; reward gear is not auto-equipped. Player rewards use unique IDs and wait safely if total owned including listings is 30. Reserved collection is replay-safe.
+
+Ranks by unchanged ID: Sunday League Dreamer, Grassroots Manager, Local Gaffer, Non-League Boss, Semi-Pro Manager, Professional Manager, League Manager, Promotion Specialist, Championship Contender, Premier League Manager, Title Challenger, European Elite, Football Legend. Hidden thresholds are unchanged. Historical event text may contain former rank names; current UI/errors use football labels.
+
+Merchandise Runs is the football bootlegging system, under Campaign. A four-town quote guide shows buy/sell prices and estimated 20-unit destination proceeds minus current purchase price and one £50 loaded travel leg. Source positioning can cost extra; stored stock may have a different acquisition cost. Quotes reset at UTC midnight. These are estimates, not guaranteed profit or remote trading.
+
 ## Current pacing rules — supersede earlier numbers below
 
 See PACING_REVIEW.md for research and full rules. Base stamina 200, fitness +5 per level up to 300; regenerate +5 per 30 seconds. No existing balance/asset reset. Human ventures: two managers in the host location, £500 and 20 stamina each, £8,000 gross success payout, shared eight-hour cooldown. New public rooms require no alliance. Solo: manager plus three different owned/unlisted players, £750 and 20 stamina, £4,500 gross success payout; both manager and asset IDs recover eight hours. Fatigue follows transfers. Human success/failure hidden progress 1500/100; solo 750/50. Withdraw readiness for changed terms; do not retroactively extend old completed timers.

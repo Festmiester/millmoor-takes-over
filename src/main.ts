@@ -21,6 +21,8 @@ import {
   type EmpireState,
 } from "./empire";
 let empire: EmpireState | null = null;
+import { nextCampaign, renderCampaign, type CampaignState } from "./campaign";
+let campaign: CampaignState | null = null;
 const app = document.querySelector<HTMLDivElement>("#app")!;
 let player: Player | null = null,
   catalog: Catalog = { ranks: [], activities: [], items: [] },
@@ -96,6 +98,7 @@ const groups = [
       ["scouting", "Talent Scouts"],
       ["recruitment", "Recruitment"],
       ["squad", "My Squad"],
+      ["trading", "Merchandise Runs"],
       ["training", "Training Centre"],
       ["rivals", "Rival Challenges"],
       ["campaign", "Road to Legend"],
@@ -112,7 +115,6 @@ const groups = [
       ["market", "Transfer Market"],
       ["bank", "Club Bank"],
       ["travel", "Transit Hub"],
-      ["trading", "Merchandise Trading"],
     ],
   },
   {
@@ -123,26 +125,7 @@ const groups = [
     ],
   },
 ];
-const chapters = [
-  "First Boots on the Ground",
-  "A Name on the Street",
-  "The Local Following",
-  "Trial by Football",
-  "Beyond the Touchline",
-  "A Club with Ambition",
-  "The Regional Stage",
-  "New Colours, New Ground",
-  "The County Contenders",
-  "Building a Reputation",
-  "The National Spotlight",
-  "More than a Club",
-  "A Continental Dream",
-  "The Football Institution",
-  "The Global Stage",
-  "A Lasting Legacy",
-  "The Beautiful Empire",
-  "A Legend of the Game",
-];
+
 async function api<T = any>(path: string, data?: unknown): Promise<T> {
   const r = await fetch(path, {
     method: data === undefined ? "GET" : "POST",
@@ -314,12 +297,7 @@ function content() {
           "Independent timers",
         ) +
         `<p class="footnote">Independent timers · Failed moves still use energy and entry costs.</p>` +
-        (p.chapter < chapters.length
-          ? section(
-              "YOUR NEXT CHAPTER",
-              `<div class="next-chapter"><div><strong>${esc(chapters[p.chapter])}</strong><span>${Math.min(p.wins, (p.chapter + 1) * 10)} / ${(p.chapter + 1) * 10} successful moves · ${money(100 * (p.chapter + 1))} reward</span><progress aria-label="Chapter successful moves" max="${(p.chapter + 1) * 10}" value="${Math.min(p.wins, (p.chapter + 1) * 10)}"></progress></div>${p.wins >= (p.chapter + 1) * 10 && p.rank >= Math.min(12, Math.floor(p.chapter / 2)) ? actionButton("chapter", "", "Claim chapter", false) : '<a href="#campaign">Objectives →</a>'}</div>`,
-            )
-          : "")
+        nextCampaign(campaign)
       );
     case "scouting":
     case "recruitment":
@@ -395,7 +373,7 @@ function content() {
                   `<article class="player-row">${playerSummary(s)}<div class="button-row">${actionButton("sellPlayer", s.id, "Release")}<button class="secondary" data-list="${s.id}">List</button></div></article>`,
               )
               .join("") ||
-            '<p class="empty">No players match. Talent Scouts opens at Pee Wee.</p>'
+            '<p class="empty">No players match. Talent Scouts opens at Grassroots Manager.</p>'
           }</div>`,
         ) +
         section(
@@ -488,22 +466,7 @@ function content() {
         )
       );
     case "campaign":
-      return (
-        banner(
-          "YOUR ORIGINAL FOOTBALL STORY",
-          "Road to Legend",
-          "Eighteen chapters. From your first local following to a lasting football legacy.",
-        ) +
-        section(
-          "THE CAMPAIGN",
-          chapters
-            .map(
-              (c, i) =>
-                `<div class="chapter ${i === p.chapter ? "current" : ""}"><span class="chapter-number">${i < p.chapter ? "✓" : String(i + 1).padStart(2, "0")}</span><div><h3>${c}</h3><small>${(i + 1) * 10} successful moves · ${esc(rankName(Math.min(12, Math.floor(i / 2))))} · ${money(100 * (i + 1))} reward</small></div>${i < p.chapter ? '<span class="owned">Complete</span>' : i === p.chapter ? actionButton("chapter", "", "Claim", p.wins < (i + 1) * 10 || p.rank < Math.min(12, Math.floor(i / 2))) : '<span class="lock">◇</span>'}</div>`,
-            )
-            .join(""),
-        )
-      );
+      return renderCampaign(campaign);
     case "history":
       return (
         banner(
@@ -538,7 +501,7 @@ function content() {
         inventory() +
         section(
           "YOUR RECORD",
-          `<dl class="facts"><div><dt>Rank</dt><dd>${esc(p.rankName)}</dd></div><div><dt>Successful moves</dt><dd>${p.wins}</dd></div><div><dt>Activity attempts</dt><dd>${p.actions}</dd></div><div><dt>Chapters completed</dt><dd>${p.chapter} / 18</dd></div></dl>${config.google ? '<a class="text-button full" href="/auth/google">Connect with Google →</a>' : ""}`,
+          `<dl class="facts"><div><dt>Rank</dt><dd>${esc(p.rankName)}</dd></div><div><dt>Successful moves</dt><dd>${p.wins}</dd></div><div><dt>Activity attempts</dt><dd>${p.actions}</dd></div><div><dt>Chapters completed</dt><dd>${p.campaignCompleted || 0} / 18</dd></div></dl>${config.google ? '<a class="text-button full" href="/auth/google">Connect with Google →</a>' : ""}`,
         )
       );
     case "guide":
@@ -550,7 +513,7 @@ function content() {
         ) +
         section(
           "GETTING STARTED",
-          `<div class="guide"><h3>01 / Make a name</h3><p>Every manager starts as Scum with £250 and 200 stamina. Deliver Flyers and Community Coaching are your two starter activities. Success brings cash, improves proficiency and builds your reputation.</p><h3>02 / Choose your approach</h3><p>Safe adds 10 points to your chance but pays 20% less. Bold removes 10 points but pays 30% more. Steady keeps the base odds. No approach guarantees success.</p><h3>03 / Keep things moving</h3><p>Each activity has its own persistent timer. Stamina recovers by 5 every 30 seconds, including while you are away. Fitness training adds 5 capacity per level up to 300. You never need to keep the tab open.</p><h3>04 / Earn your rank</h3><p>Successful actions build hidden progress. Harder actions count for more. Your rank appears when you earn it; there is no progress counter or percentage. The early ranks open scouting, recruitment, training and rival challenges.</p><h3>05 / Own your assets</h3><p>Successful scouting and recruitment can sign original players. Keep them, release them to the game or list them for another manager. Equipment affects club power only while equipped. One item per slot.</p><h3>06 / The test world</h3><p>All balances are fictional. No deposits of real money, paid gold or cash prizes. Test accounts stay in this browser until connected to Google. This world is independent of the Millmoor Juniors app.</p></div>`,
+          `<div class="guide"><h3>01 / Make a name</h3><p>Every manager starts as Sunday League Dreamer with £250 and 200 stamina. Deliver Flyers and Community Coaching are your two starter activities. Success brings cash, improves proficiency and builds your reputation.</p><h3>02 / Choose your approach</h3><p>Safe adds 10 points to your chance but pays 20% less. Bold removes 10 points but pays 30% more. Steady keeps the base odds. No approach guarantees success.</p><h3>03 / Keep things moving</h3><p>Each activity has its own persistent timer. Stamina recovers by 5 every 30 seconds, including while you are away. Fitness training adds 5 capacity per level up to 300. You never need to keep the tab open.</p><h3>04 / Earn your rank</h3><p>Successful actions build hidden progress. Harder actions count for more. Your rank appears when you earn it; there is no progress counter or percentage. The early ranks open scouting, recruitment, training and rival challenges.</p><h3>05 / Own your assets</h3><p>Successful scouting and recruitment can sign original players. Keep them, release them to the game or list them for another manager. Equipment affects club power only while equipped. One item per slot.</p><h3>06 / The test world</h3><p>All balances are fictional. No deposits of real money, paid gold or cash prizes. Test accounts stay in this browser until connected to Google. This world is independent of the Millmoor Juniors app.</p></div>`,
         ) +
         section(
           "THE RANKS",
@@ -748,6 +711,8 @@ async function refreshPage() {
   try {
     await refreshState();
     if (page === "daily") daily = await api("/api/daily");
+    if (["office", "campaign", "profile"].includes(page))
+      campaign = await api("/api/campaign");
     if (empirePages.includes(page)) empire = await api("/api/empire");
     if (["online", "leaderboard", "market", "rivals", "mail"].includes(page))
       await refreshWorld();
@@ -802,6 +767,8 @@ async function sendAction(payload: unknown) {
         before && r.player.rank > before.rank ? r.player.rankName : undefined,
     };
     if (page === "daily") daily = await api("/api/daily");
+    if (["office", "campaign", "profile"].includes(page))
+      campaign = await api("/api/campaign");
     if (empirePages.includes(page)) empire = await api("/api/empire");
     if (["market", "rivals"].includes(page)) await refreshWorld();
     busy = false;
@@ -819,6 +786,7 @@ async function sendAction(payload: unknown) {
 app.addEventListener("click", async (e) => {
   const b = (e.target as Element).closest<HTMLElement>("button,a");
   if (!b) return;
+  if (b.dataset.campaignTier) tier = Number(b.dataset.campaignTier);
   if (b.dataset.bankAll) {
     const amount =
       b.dataset.bankAll === "deposit" ? player!.cash : player!.bank;
@@ -1090,6 +1058,8 @@ document.addEventListener("visibilitychange", () => {
 async function loadGame() {
   await refreshState();
   if (page === "daily") daily = await api("/api/daily");
+  if (["office", "campaign", "profile"].includes(page))
+    campaign = await api("/api/campaign");
   if (empirePages.includes(page)) empire = await api("/api/empire");
   await refreshWorld();
   render();

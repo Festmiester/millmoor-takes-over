@@ -37,7 +37,7 @@ const beginner = await make(0, 250),
   buyer = await make(1500);
 await test("starter state has hidden rank and exactly two unlocked activities", async () => {
   const p = await state(beginner);
-  assert.equal(p.rankName, "Scum");
+  assert.equal(p.rankName, "Sunday League Dreamer");
   assert.equal(p.cash, 250);
   assert.equal(p.energy, 200);
   assert.equal("xp" in p, false);
@@ -172,8 +172,12 @@ await test("rivals protect beginners and reject self challenges", async () => {
 });
 await test("rate limiting rejects excess calls in the same window", async () => {
   const k = "fixture:" + crypto.randomUUID();
-  assert.equal((await sql`SELECT mto_throttle(${k},1) AS ok`)[0].ok, true);
-  assert.equal((await sql`SELECT mto_throttle(${k},1) AS ok`)[0].ok, false);
+  const results = await sql.transaction([
+    sql`SELECT mto_throttle(${k},1) AS ok`,
+    sql`SELECT mto_throttle(${k},1) AS ok`,
+  ]);
+  assert.equal(results[0][0].ok, true);
+  assert.equal(results[1][0].ok, false);
 });
 console.log(
   `${passed} integration tests passed. Fixtures remain only on the isolated verification branch.`,
